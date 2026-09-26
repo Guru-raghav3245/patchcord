@@ -1,0 +1,86 @@
+--- a/src/music-players.h
++++ b/src/music-players.h
+@@ -860,6 +860,10 @@
+   // In USB Mass Storage mode it is 0x4102/0x1047
+   // Seems to use the new shaped-up firmware.
+   { "iRiver", 0x4102, "Spinn", 0x1147, DEVICE_FLAG_NONE },
++  // Activo CT10 (Android DAP, iriver VID). USB reset on close leaves it
++  // unable to open a new session until replugged, so skip the reset.
++  { "Activo", 0x4102, "CT10", 0x1182,
++    DEVICE_FLAGS_ANDROID_BUGS & ~DEVICE_FLAG_FORCE_RESET_ON_CLOSE },
+   // Reported by Tony Janssen <tonyjanssen@users.sourceforge.net>
+   { "iRiver", 0x4102, "E50", 0x1151,
+     DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | DEVICE_FLAG_NO_ZERO_READS |
+--- a/src/libmtp.c
++++ b/src/libmtp.c
+@@ -2060,9 +2060,12 @@
+       ptp_usb->rawdevice.device_entry.device_flags |= DEVICE_FLAGS_ARICENT_BUGS;
+       LIBMTP_INFO("Aricent MTP stack device detected, assigning default bug flags\n");
+     }
+-    else if (is_android) {
++    else if (is_android &&
++             ptp_usb->rawdevice.device_entry.device_flags == DEVICE_FLAG_NONE) {
+       /*
+        * If bugs are fixed in later versions, test on tmpext->major, tmpext->minor
++       * Only for devices without explicit flags, so entries like the Activo
++       * CT10 can opt out of individual Android flags.
+        */
+       ptp_usb->rawdevice.device_entry.device_flags |= DEVICE_FLAGS_ANDROID_BUGS;
+       LIBMTP_INFO("Android device detected, assigning default bug flags\n");
+@@ -7082,6 +7085,7 @@
+     }
+   } else if (ptp_operation_issupported(params, PTP_OC_MTP_SetObjectPropValue)) {
+     ret = set_object_string(device, object_id, PTP_OPC_ObjectFileName, newname);
++    free(newname);
+     if (ret != 0) {
+       add_error_to_errorstack(device, LIBMTP_ERROR_GENERAL, "set_object_filename(): "
+               " could not set object filename.");
+@@ -7294,7 +7298,7 @@
+ 
+   ret = set_object_filename(device, object_id, map_libmtp_type_to_ptp_type(file->filetype), (const char **) &newname);
+ 
+-  free(file);
++  LIBMTP_destroy_file_t(file);
+ 
+   return ret;
+ }
+--- a/src/libusb1-glue.c
++++ b/src/libusb1-glue.c
+@@ -1368,6 +1368,24 @@
+ 			break;
+ 		}
+ 		bytes_left_to_transfer -= written;
++	}
++	if (ret == PTP_ERROR_CANCEL) {
++		/*
++		 * Cancel here rather than in ptp_transaction_new() so we can wait
++		 * for the device to settle. Without this the next command is taken
++		 * as object data and gets no response (~60s stall).
++		 */
++		PTP_USB *ptp_usb = (PTP_USB *) params->data;
++		int zlp;
++		params->cancelreq_func(params, ptp->Transaction_ID);
++		while (params->devstatreq_func(params) == PTP_RC_DeviceBusy)
++			usleep(200000);
++		/*
++		 * Android's f_mtp still has a bulk-out read queued for the object
++		 * data and only notices the cancel once it completes, so it would
++		 * swallow our next command. A zero-length packet completes it.
++		 */
++		libusb_bulk_transfer(ptp_usb->handle, ptp_usb->outep, NULL, 0, &zlp, 1000);
+ 	}
+ 	if (ret != PTP_RC_OK && ret != PTP_ERROR_CANCEL)
+ 		ret = PTP_ERROR_IO;
+--- a/src/ptp.c
++++ b/src/ptp.c
+@@ -174,9 +174,8 @@
+ 	switch (flags&PTP_DP_DATA_MASK) {
+ 	case PTP_DP_SENDDATA:
+ 		{
++			/* On cancel, senddata_func has already sent the cancel request. */
+ 			uint16_t ret = params->senddata_func(params, ptp, sendlen, handler);
+-			if (ret == PTP_ERROR_CANCEL)
+-				CHECK_PTP_RC(params->cancelreq_func(params, params->transaction_id-1));
+ 			CHECK_PTP_RC(ret);
+ 		}
+ 		break;

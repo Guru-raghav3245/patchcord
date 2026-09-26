@@ -1,0 +1,24 @@
+MTP Tool uses the following open-source libraries, each under the
+GNU Lesser General Public License, version 2.1 (full texts alongside this file).
+
+libmtp 1.1.23   https://github.com/libmtp/libmtp  (libmtp-COPYING.txt, libmtp-AUTHORS.txt)
+libusb 1.0.30   https://github.com/libusb/libusb  (libusb-COPYING.txt, libusb-AUTHORS.txt)
+
+Both are dynamically linked and live in MTPTool.app/Contents/Frameworks.
+You may replace them with your own builds (re-sign the app ad hoc afterwards:
+codesign --force --deep --sign - MTPTool.app).
+
+libusb is unmodified.
+
+libmtp is modified. The changes are in libmtp-ct10.patch, which applies with
+`patch -p1` to the libmtp-1.1.23 release tarball:
+  - Activo CT10 device entry that skips the USB reset on close
+    (the reset leaves the CT10 unable to open a new session until replugged).
+  - Android default bug flags are only applied to devices without their own entry.
+  - Cancelling an upload now waits for the device and completes the pending
+    bulk read, instead of stalling the next command for ~60 s.
+  - Two small memory leaks fixed in LIBMTP_Set_Object_Filename.
+
+Build: MACOSX_DEPLOYMENT_TARGET=11.0 CFLAGS="-arch arm64 -O2" LDFLAGS="-arch arm64"
+./configure --disable-static --disable-mtpz --with-udev=no (libmtp); libusb is
+configured the same way plus ac_cv_func_pipe2=no.
