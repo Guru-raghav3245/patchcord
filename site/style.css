@@ -59,7 +59,7 @@ code {
 
 /* hero */
 .hero-band { background: var(--brush); border-bottom: 1px solid var(--line); overflow: hidden; }
-.hero { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; padding: 72px 0 64px; }
+.hero { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; padding-block: 72px 64px; }
 .hero .status { display: flex; align-items: center; gap: 10px; }
 .hero h1 { font-size: clamp(48px, 6.2vw, 76px); line-height: .98; letter-spacing: -.01em; margin: 20px 0; }
 .hero h1 em { color: var(--amber-ink); }
@@ -76,7 +76,7 @@ code {
 .shot img { display: block; width: min(1040px, 165%); max-width: none; height: auto; margin: -24px 0 -40px -30px; }
 
 /* spec sheet */
-.sheet { padding: 72px 0 8px; }
+.sheet { padding-block: 72px 8px; }  /* block only: .wrap owns the side gutters */
 .sheet h2 { font-size: 40px; line-height: 1.1; margin: 0 0 24px; }
 .rows { border-top: 1px solid var(--line); margin: 0; padding: 0; list-style: none; }
 .rows > li { display: grid; grid-template-columns: 200px 1fr; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--line); }
@@ -89,7 +89,7 @@ code {
 footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding: 56px 0 40px; color: var(--muted); font-size: 14px; }
 
 @media (max-width: 860px) {
-  .hero { grid-template-columns: 1fr; gap: 40px; padding: 48px 0 40px; }
+  .hero { grid-template-columns: 1fr; gap: 40px; padding-block: 48px 40px; }
   .shot img { width: 170%; margin: -12px 0 -24px -16px; }
   .rows > li { grid-template-columns: 1fr; gap: 4px; }
   .sheet { padding-top: 56px; }
@@ -103,7 +103,7 @@ footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-b
 }
 
 /* 404 */
-.lost { max-width: 560px; padding: 96px 0; }
+.lost { max-width: 560px; padding-block: 96px; }
 .lost h1 { font-size: clamp(40px, 6vw, 56px); line-height: 1.05; margin: 20px 0 16px; }
 .lost p { color: var(--muted); font-size: 18px; margin: 0 0 32px; }
 .lost .home { display: inline-block; margin-top: 20px; }
