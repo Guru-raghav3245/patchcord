@@ -71,9 +71,58 @@ code {
 }
 .cta:hover { background: var(--amber); color: #16171A; }
 .req { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 18px; }
-.shot { margin: 0; }
-/* the window is wide: show it near real size and let it run off the right edge instead of shrinking it */
-.shot img { display: block; width: min(1040px, 165%); max-width: none; height: auto; margin: -24px 0 -40px -30px; }
+
+/* hero app window: HTML/CSS drawing of the app (always its dark theme). Real size; runs off the right edge. */
+.shot { margin: 0; min-width: 0; }  /* let the 760px window overflow its column instead of widening it */
+.hero > div { min-width: 0; }
+.appwin {
+  --w-bg: #0E0F11; --w-panel: #17191C; --w-table: #1B1C1F; --w-alt: #202125; --w-line: #2A2D31;
+  --w-text: #E8E6E1; --w-muted: #8C8A85; --w-faint: #5C5B58; --w-sel: #A8620A;
+  width: 760px; color: var(--w-text); background: var(--w-bg); border-radius: 12px; overflow: hidden;
+  font: 13px/1.35 "Instrument Sans", -apple-system, sans-serif;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .06), 0 30px 70px rgba(0, 0, 0, .45), 0 6px 18px rgba(0, 0, 0, .3);
+}
+.appwin svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.aw-head { padding: 12px 22px 14px; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .018) 0 1px, transparent 1px 3px); border-bottom: 1px solid var(--w-line); }
+.aw-lights { display: flex; gap: 8px; margin-bottom: 14px; }
+.aw-lights i { width: 12px; height: 12px; border-radius: 50%; background: #FF5F57; }
+.aw-lights i:nth-child(2) { background: #FEBC2E; } .aw-lights i:nth-child(3) { background: #28C840; }
+.aw-status, .aw-free, .aw-line b, .aw-line i { font: 500 10px/1.2 "Geist Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--w-muted); }
+.aw-status { display: flex; align-items: center; gap: 9px; }
+.aw-status .led, .aw-transfer .led { width: 7px; height: 7px; }
+.aw-title { display: flex; align-items: baseline; justify-content: space-between; margin-top: 2px; }
+.aw-device { display: inline-flex; align-items: baseline; gap: 8px; font: 38px/1.1 "Instrument Serif", serif; }
+.aw-device svg { width: 13px; height: 13px; color: var(--w-muted); stroke-width: 2; }
+.aw-body { padding: 14px 22px 18px; }
+.aw-tools { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
+.aw-btn { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border: 1px solid var(--w-line); border-radius: 7px; background: var(--w-panel); font-weight: 600; font-size: 12.5px; }
+.aw-icon { padding: 0 8px; color: var(--w-text); }
+.aw-primary { background: var(--w-text); color: var(--w-bg); border-color: transparent; }
+.aw-crumb { color: #F2A33A; font-size: 14px; } .aw-here { color: var(--w-text); font-weight: 600; }
+.aw-sep { color: var(--w-faint); font-size: 15px; }
+.aw-spacer { flex: 1; }
+.aw-table { border: 1px solid var(--w-line); border-radius: 10px; overflow: hidden; background: var(--w-table); padding-bottom: 6px; }
+.aw-row { display: grid; grid-template-columns: 1fr 76px 88px 168px; align-items: center; height: 26px; padding: 0 10px; margin: 0 8px; border-radius: 6px; }
+.aw-row:nth-child(odd):not(.aw-th) { background: var(--w-alt); }
+.aw-row > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--w-muted); }
+.aw-row > .aw-name { display: flex; align-items: center; gap: 8px; color: var(--w-text); font-size: 13.5px; }
+.aw-name svg { color: var(--w-muted); width: 13px; height: 13px; }
+.aw-mono { font: 11.5px "Geist Mono", monospace; }
+.aw-row.sel, .aw-row.sel:nth-child(odd) { background: var(--w-sel); }
+.aw-row.sel > span, .aw-row.sel svg { color: #fff; }
+.aw-th { margin: 0 0 4px; padding: 0 18px; height: 28px; border-radius: 0; border-bottom: 1px solid var(--w-line); }
+.aw-th > span { color: var(--w-text); font-size: 12px; font-weight: 600; }
+.aw-th em { font-style: normal; color: var(--w-muted); font-size: 9px; }
+.aw-transfer { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 12px; border: 1px solid var(--w-line); border-radius: 10px; background: var(--w-panel); }
+.aw-bars { flex: 1; min-width: 0; }
+.aw-line { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.aw-line span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aw-line .aw-mono { color: var(--w-muted); }
+.aw-bar { height: 4px; border-radius: 2px; background: var(--w-line); margin-bottom: 10px; overflow: hidden; }
+.aw-bar:last-child { margin-bottom: 0; }
+.aw-bar span { display: block; height: 100%; border-radius: 2px; background: #F2A33A; }
+.aw-total span { background: var(--w-text); }
+.aw-x { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--w-line); color: var(--w-muted); font-size: 10px; }
 
 /* spec sheet */
 .sheet { padding-block: 72px 8px; }  /* block only: .wrap owns the side gutters */
@@ -90,7 +139,7 @@ footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-b
 
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; gap: 40px; padding-block: 48px 40px; }
-  .shot img { width: 170%; margin: -12px 0 -24px -16px; }
+  .shot { zoom: .6; }  /* the window keeps its desktop layout, just smaller */
   .rows > li { grid-template-columns: 1fr; gap: 4px; }
   .sheet { padding-top: 56px; }
   .sheet h2 { font-size: 34px; }

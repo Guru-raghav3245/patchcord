@@ -55,7 +55,7 @@
 - **Max content width:** 1120 px.
 - **Border radius:** sm 5 px (code) · md 8 px (buttons) · lg 12–14 px (panels, window frames). No pill buttons.
 - **Primary CTA:** solid `--text` background with `--bg` text and a lit amber LED dot; on hover the fill turns amber. One primary CTA per screen.
-- **Screenshots:** always real captures of the app (CT10 + music preferred), never HTML mockups on the live site.
+- **App window on the site:** drawn in HTML/CSS (`.appwin` in `site/index.html` + `site/style.css`), not a screenshot (user request, 2026-09-27): sharp at any zoom, same fonts/tokens as the page, and it can show the transfer bars. Always the app's dark theme, 760px wide at real size, running just off the right edge; `zoom: .6` below 860px. One `role="img"` label describes it; its innards are `aria-hidden`. Keep it in sync with the real app UI.
 
 ## Icon
 - Graphite squircle with a subtle brushed vertical grain and a darker rim; one bone-white (`#E8E6E1`) cable that runs right into an arrow, loops back, and ends in a USB-C plug; amber indicator LED top-right with a soft glow.
@@ -79,3 +79,4 @@
 | 2026-09-27 | ~~App stays native; only accent + tabular digits change~~ | Superseded same day |
 | 2026-09-27 | App adopts the full faceplate UI | User wants the app to closely match the website |
 | 2026-09-27 | App accent `#A8620A` instead of `#F2A33A` | White selected-row text needs ≥4.5:1 |
+| 2026-09-27 | Hero app window drawn in HTML/CSS instead of a screenshot | User preference; crisper and themable |
