@@ -34,6 +34,7 @@ xcodebuild -project MTPTool.xcodeproj -scheme MTPTool -configuration Debug -deri
 
 There are no unit tests. The app has headless commands for testing against a real device (see `App/CLI.swift` below); e.g. `build/Build/Products/Debug/MTPTool.app/Contents/MacOS/MTPTool --probe /`.
 
+- **App icon:** `python3 scripts/make-icon.py` draws it into `App/Assets.xcassets/AppIcon.appiconset` (macOS ignores a single 1024 image, so it writes the full 16–512 set).
 - **Post-build phase:** `scripts/bundle-libs.sh` copies the dylibs into `Contents/Frameworks`, rewrites their install names to `@rpath`, copies `vendor/licenses/*` and the patch into `Contents/Resources/Licenses`, and ad-hoc signs.
   - `ENABLE_DEBUG_DYLIB: NO` is required, or that codesign step fails.
   - Release has `CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO`, or ad-hoc builds ship `get-task-allow`.

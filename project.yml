@@ -26,6 +26,7 @@ targets:
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: MTP Tool
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_OBJC_BRIDGING_HEADER: App/Bridging-Header.h
         HEADER_SEARCH_PATHS: $(SRCROOT)/vendor/prefix/include
         LIBRARY_SEARCH_PATHS: $(SRCROOT)/vendor/prefix/lib
