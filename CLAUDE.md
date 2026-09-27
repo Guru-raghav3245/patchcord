@@ -10,7 +10,7 @@ v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activ
 
 - **Repo:** https://github.com/Guru-raghav3245/mtp-tool (private, branch `main`).
 - **Release:** `dist/` holds `MTPTool-1.0.dmg`, the two LGPL source archives, and `SHA256SUMS.txt`.
-- **Website:** `site/` is a static page on Vercel (Hobby), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). To release: run `make-dmg.sh`, replace `site/downloads/*` with the four `dist/` files, update the version/size/filenames in `site/index.html`, then commit and push.
+- **Website:** https://mtptool.vercel.app — `site/` is a static page on Vercel (Hobby, project `mtptool`), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). To release: run `make-dmg.sh`, replace `site/downloads/*` with the four `dist/` files, update the version/size/filenames in `site/index.html`, then commit and push.
 - **Install flow:** verified with a real Safari download: warning → Privacy & Security → Open Anyway → launch. Later launches have no prompts.
 - **Untested:**
   - Multi-device picker (see the reminder above)
