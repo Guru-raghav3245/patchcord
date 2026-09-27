@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct MTPToolApp: App {
+struct PatchcordApp: App {
     @StateObject private var manager = DeviceManager()
 
     init() {
@@ -9,14 +9,14 @@ struct MTPToolApp: App {
         CLI.runIfRequested()  // exits if a headless command was given
         Theme.registerFonts()
         #if DEBUG
-        // UI check without Screen Recording permission: MTPTOOL_SNAPSHOT=/path.png [MTPTOOL_APPEARANCE=dark|light]
-        // [MTPTOOL_SNAPSHOT_DELAY=s] saves the window's own rendering once.
+        // UI check without Screen Recording permission: PATCHCORD_SNAPSHOT=/path.png [PATCHCORD_APPEARANCE=dark|light]
+        // [PATCHCORD_SNAPSHOT_DELAY=s] saves the window's own rendering once.
         let env = ProcessInfo.processInfo.environment
-        if let look = env["MTPTOOL_APPEARANCE"] {
+        if let look = env["PATCHCORD_APPEARANCE"] {
             DispatchQueue.main.async { NSApp.appearance = NSAppearance(named: look == "dark" ? .darkAqua : .aqua) }
         }
-        if let out = env["MTPTOOL_SNAPSHOT"] {
-            DispatchQueue.main.asyncAfter(deadline: .now() + (Double(env["MTPTOOL_SNAPSHOT_DELAY"] ?? "") ?? 5)) {
+        if let out = env["PATCHCORD_SNAPSHOT"] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + (Double(env["PATCHCORD_SNAPSHOT_DELAY"] ?? "") ?? 5)) {
                 guard let view = NSApp.windows.first(where: \.isVisible)?.contentView?.superview,
                       let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return print("[snapshot] no window") }
                 view.cacheDisplay(in: view.bounds, to: rep)

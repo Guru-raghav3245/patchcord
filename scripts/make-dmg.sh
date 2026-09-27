@@ -5,14 +5,14 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 xcodegen generate >/dev/null
-xcodebuild -project MTPTool.xcodeproj -scheme MTPTool -configuration Release -derivedDataPath build build -quiet
+xcodebuild -project Patchcord.xcodeproj -scheme Patchcord -configuration Release -derivedDataPath build build -quiet
 APP=build/Build/Products/Release/Patchcord.app
 VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
 codesign --verify --deep --strict "$APP"
 
 DIST="$ROOT/site/downloads" STAGE="$(mktemp -d)"
 mkdir -p "$DIST"
-rm -f "$DIST"/MTPTool-*.dmg "$DIST"/Patchcord-*.dmg
+rm -f "$DIST"/Patchcord-*.dmg
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 cp scripts/dmg-readme.txt "$STAGE/Read Me First.txt"

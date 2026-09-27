@@ -1,4 +1,4 @@
-# Activo MTP Tool — v1 Spec
+# Patchcord — v1 Spec
 
 Sep 26, 2026 · @Guru Raghav
 

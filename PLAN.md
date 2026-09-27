@@ -1,6 +1,6 @@
-# Activo MTP Tool — Project Plan
+# Patchcord — Project Plan
 
-Source of truth for requirements: `Activo MTP Tool — v1 Spec.md`.
+Source of truth for requirements: `Patchcord — v1 Spec.md`.
 
 ## Project outline
 
@@ -24,7 +24,7 @@ Goal: prove the hardest part (bundled MTP stack talking to the CT10) before buil
 - [x] Build libusb + libmtp for arm64
 - [x] Bundle dylibs in `Contents/Frameworks`; fix install names/rpaths with `install_name_tool`
 - [x] Bridging header exposing libmtp to Swift (no shim needed yet)
-- [x] Spike: open the CT10 and list its storages (`App/MTPProbe.swift`; run headless with `MTPTool --probe`)
+- [x] Spike: open the CT10 and list its storages (`App/MTPProbe.swift`; run headless with `Patchcord --probe`)
 
 **Exit:** a launched `.app` on a clean Mac lists the CT10 with nothing else installed. *(Met on this Mac: lists "Internal storage — 14.2 GB" across repeated launches. Not yet tried on a second, clean Mac.)*
 
@@ -88,7 +88,7 @@ Goal: shippable download.
 - [x] DMG with drag-to-Applications: `scripts/make-dmg.sh` (hdiutil), 672 KB → `dist/`
 - [x] Install note (`Read Me First.txt`): macOS 15+ removed right-click → Open for unsigned apps, so it uses Privacy & Security → Open Anyway
 - [x] Install test: app from the DMG runs with the build's libraries hidden (only bundled dylibs load). A real Safari download went through warning → Open Anyway → launch exactly as the read-me says, and later launches have no prompts. Not tried on a second Mac.
-- [ ] Publish to website: all four files in `dist/` (DMG, `libusb-1.0.30.tar.bz2`, `libmtp-1.1.23-mtptool.tar.gz`, `SHA256SUMS.txt`). LGPL needs the two source archives next to the DMG.
+- [ ] Publish to website: all four files in `dist/` (DMG, `libusb-1.0.30.tar.bz2`, `libmtp-1.1.23-patchcord.tar.gz`, `SHA256SUMS.txt`). LGPL needs the two source archives next to the DMG.
 
 **Exit:** a fresh Mac can install and use the app from the website download alone. *(Met on this Mac via a real browser download; publishing is the user's step.)*
 

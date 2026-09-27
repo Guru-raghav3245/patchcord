@@ -57,7 +57,7 @@ final class DeviceManager: ObservableObject {
         mtp.async { LIBMTP_Init() }
         watcher = USBWatcher(queue: .main) { [weak self] in self?.scheduleRescan() }
         #if DEBUG
-        if ProcessInfo.processInfo.environment["MTPTOOL_FAKE_TRANSFER"] != nil {  // UI check of the transfer bar
+        if ProcessInfo.processInfo.environment["PATCHCORD_FAKE_TRANSFER"] != nil {  // UI check of the transfer bar
             transfer = TransferStatus(verb: "Uploading", count: 12, index: 2, name: "03 Aagaya Gangai - Dheem Dhira.flac",
                                       fraction: 0.62, totalBytes: 612_000_000, doneBytes: 118_000_000, currentBytes: 48_000_000)
         }

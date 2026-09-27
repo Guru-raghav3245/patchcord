@@ -1,7 +1,7 @@
 build/
 vendor/src/
 vendor/prefix/
-MTPTool.xcodeproj/
+Patchcord.xcodeproj/
 .DS_Store
 .vercel/
 .gstack/

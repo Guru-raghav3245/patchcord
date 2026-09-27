@@ -6,10 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Reminder for the user (raise this at the start of the next session):** the multi-device picker has never been tested with two real devices. The user will soon have a second Android phone. Ask whether it's available, and if so, test with both it and the CT10 connected: both appear, switching between them works, and unplugging one leaves the other working.
 
-v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activo CT10. The spec is `Activo MTP Tool — v1 Spec.md`; `PLAN.md` has per-phase detail and measurements.
+v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activo CT10. The spec is `Patchcord — v1 Spec.md`; `PLAN.md` has per-phase detail and measurements.
 
-- **Repo:** https://github.com/Guru-raghav3245/mtp-tool (private, branch `main`). `conversation*.md` are local chat exports; keep them out of git.
-- **Release:** 1.0.3 (2026-09-28: renamed to Patchcord; light-mode link contrast). 1.0.2 (2026-09-27) brought the faceplate redesign, two progress bars + ✕ cancel, cancel undoes the batch, no USB reset on close for Android. `site/downloads/` holds `Patchcord-1.0.3.dmg` (1.4 MB with bundled fonts), the two LGPL source archives, and `SHA256SUMS.txt`.
+- **Repo:** https://github.com/Guru-raghav3245/patchcord (private, branch `main`). `conversation*.md` are local chat exports; keep them out of git.
+- **Release:** 1.0.4 (2026-09-28: internal names and bundle id → Patchcord). 1.0.3 (2026-09-28): renamed to Patchcord; light-mode link contrast. 1.0.2 (2026-09-27) brought the faceplate redesign, two progress bars + ✕ cancel, cancel undoes the batch, no USB reset on close for Android. `site/downloads/` holds `Patchcord-1.0.4.dmg` (1.4 MB with bundled fonts), the two LGPL source archives, and `SHA256SUMS.txt`.
 - **Website:** https://patchcord.vercel.app — `site/` is a static page on Vercel (`index.html`, `404.html`, shared `style.css`, self-hosted OFL fonts in `site/fonts/`, the hero's app window drawn in HTML/CSS with generic names only, per DESIGN.md; the nav glide is a small inline script) (Hobby, project `patchcord`), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). `site/404.html` is Vercel's custom 404 (old DMG links land there, with a button to the current DMG). Don't add `headers` rules matching `*.dmg` in `vercel.json`: they also apply to missing paths, and Chrome then rejects the 404 with `ERR_INVALID_RESPONSE`. Vercel already serves `.dmg` as `application/x-apple-diskimage`, which browsers download. To release: bump `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` in `project.yml` and the first line of `scripts/dmg-readme.txt`, run `make-dmg.sh` (writes straight into `site/downloads/`, replacing the old DMG), update the version/size/filenames in `site/index.html` (and update the HTML app window in the hero, `.appwin`, if the app UI changed) and the download link in `site/404.html` (Vercel's custom 404, which also catches links to old DMGs), then commit and push.
 - **Install flow:** verified with a real Safari download: warning → Privacy & Security → Open Anyway → launch. Later launches have no prompts.
 - **Untested:**
@@ -23,7 +23,7 @@ v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activ
   - A second Mac
 - **Known limit:** listing is about 9 ms per file on Android (libmtp queries objects one by one), so a flat 2,000-file folder takes about 18 s.
 - **Possible next steps:** send the libmtp patch upstream; make the repo public (it would host the LGPL source).
-- **Name:** the app is **Patchcord** since 1.0.3 (was "MTP Tool"; the user disliked "tool"). Only user-visible names changed: `PRODUCT_NAME`/display name, `Patchcord.app`, `Patchcord-<ver>.dmg`, site, notices. The Xcode target/scheme (`MTPTool`), `MTPToolApp`, the `MTPTOOL_*` debug env vars, the repo name and the bundle id `com.gururaghav.mtptool` intentionally stay.
+- **Name:** the app is **Patchcord** (renamed from its working title in 1.0.3; the user disliked the word "tool"). Everything carries the name: Xcode project/target/scheme `Patchcord`, `PatchcordApp`, bundle id `com.gururaghav.patchcord` (since 1.0.4), the `PATCHCORD_*` debug env vars, the GitHub repo and the Vercel project. "MTP" in code (`mtp` queue, `MTPError`) is the protocol, not the product.
 - **SwiftUI review (2026-09-27, `swiftui-pro` skill, not yet applied)**, all in `App/ContentView.swift`:
   1. `Table(entries.sorted(using:))` re-sorts in `body` on every transfer-progress tick; sort in `load()` and `.onChange(of: sortOrder)` instead.
   2. `load()` uses `Task.detached` + blocking `mtp.sync`, which ties up a cooperative-pool thread per listing (up to ~18 s); resume a continuation from `mtp.async` instead. The CLI keeps the sync `list`.
@@ -35,9 +35,9 @@ v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activ
 
 ```
 ./scripts/build-libs.sh   # one-time: downloads + builds arm64 libusb 1.0.30 and patched libmtp 1.1.23 into vendor/prefix
-xcodegen generate         # project.yml -> MTPTool.xcodeproj (gitignored; edit project.yml, never the xcodeproj)
-xcodebuild -project MTPTool.xcodeproj -scheme MTPTool -configuration Debug -derivedDataPath build build
-./scripts/make-dmg.sh     # Release build -> site/downloads/MTPTool-<ver>.dmg + LGPL source archives + SHA256SUMS
+xcodegen generate         # project.yml -> Patchcord.xcodeproj (gitignored; edit project.yml, never the xcodeproj)
+xcodebuild -project Patchcord.xcodeproj -scheme Patchcord -configuration Debug -derivedDataPath build build
+./scripts/make-dmg.sh     # Release build -> site/downloads/Patchcord-<ver>.dmg + LGPL source archives + SHA256SUMS
 ```
 
 There are no unit tests. The app has headless commands for testing against a real device (see `App/CLI.swift` below); e.g. `build/Build/Products/Debug/Patchcord.app/Contents/MacOS/Patchcord --probe /`.
@@ -97,7 +97,7 @@ Swift + SwiftUI over libmtp/libusb through a bridging header (`App/Bridging-Head
   - `--rm`
 - `App/ContentView.swift`: device switcher (the serif device name becomes a menu when >1 device is connected), error + Retry, `BrowserView`, `TransferBar` (two bars + Finder-style ✕), and `NameSheet`.
   - **Look:** DESIGN.md's faceplate; tokens, fonts, `LED`, `EngravedLabel` and `.faceplate` button styles are in `App/Theme.swift`. Window uses `.hiddenTitleBar`.
-  - **UI snapshot (Debug only):** `MTPTOOL_SNAPSHOT=/tmp/ui.png MTPTOOL_APPEARANCE=dark MTPTOOL_SNAPSHOT_DELAY=6 <app>/Contents/MacOS/Patchcord` (add `-ApplePersistenceIgnoreState YES` if it reports "no window": restored window state can leave the app windowless for the hook) saves the window's own rendering, so no Screen Recording permission is needed. Add `MTPTOOL_FAKE_TRANSFER=1` to show a mid-upload transfer bar (file 3 of 12, 24% total).
+  - **UI snapshot (Debug only):** `PATCHCORD_SNAPSHOT=/tmp/ui.png PATCHCORD_APPEARANCE=dark PATCHCORD_SNAPSHOT_DELAY=6 <app>/Contents/MacOS/Patchcord` (add `-ApplePersistenceIgnoreState YES` if it reports "no window": restored window state can leave the app windowless for the hook) saves the window's own rendering, so no Screen Recording permission is needed. Add `PATCHCORD_FAKE_TRANSFER=1` to show a mid-upload transfer bar (file 3 of 12, 24% total).
   - **`BrowserView`:** storage picker, breadcrumb, sortable `Table`, drop-in to upload, and drag-out via a temp download. ⌘ held at drag start makes it a move.
   - **macOS 12 workaround:** double-click and the context menu are per-cell (`rowActions`), because row-level actions need macOS 13.
 

@@ -1,4 +1,4 @@
-# Design System — MTP Tool
+# Design System — Patchcord
 
 ## Product Context
 - **What this is:** a free, native macOS app for copying files between a Mac and Android / MTP devices over USB, plus a one-page download site (`site/`).
@@ -13,7 +13,7 @@
 - **Mood:** calm, precise, quietly crafted. Hardware that works doesn't show off.
 - **App rule:** the app wears the faceplate too (user request, 2026-09-27): graphite/paper window with hidden title bar, brushed header, serif device name, engraved mono labels, LED status, faceplate buttons, file list framed as a panel. Tokens live in `App/Theme.swift`, mirroring `site/style.css`. macOS 12 limit: the `Table` itself (background, header, row stripes) stays system-drawn; only its cell fonts/colors and the amber selection are ours.
 - **Reference sites:** brushedtype.co/doppler, rogueamoeba.com/audiohijack, swinsian.com.
-- **Approved preview:** `~/.gstack/projects/Guru-raghav3245-mtp-tool/designs/design-system-20260927/design-preview.html`.
+- **Approved preview:** `~/.gstack/projects/Guru-raghav3245-patchcord/designs/design-system-20260927/design-preview.html`.
 
 ## Typography
 - **Display/Hero:** Instrument Serif (regular + italic). Headlines only, 40–72 px. Liner notes, not SaaS. The italic phrase may take the accent color.
