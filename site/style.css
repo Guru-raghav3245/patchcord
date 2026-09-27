@@ -54,7 +54,7 @@ code {
 .site-nav img { width: 24px; height: 24px; }
 .site-nav .name { font-weight: 600; letter-spacing: -.01em; color: var(--text); text-decoration: none; }
 .site-nav nav { margin-left: auto; display: flex; gap: 24px; }
-.site-nav nav a { color: var(--muted); text-decoration: none; font-size: 15px; }
+.site-nav nav a { color: var(--muted); text-decoration: none; font-size: 15px; padding-block: 12px; }  /* 44px+ tap target, same look */
 .site-nav nav a:hover { color: var(--text); }
 
 /* hero */
