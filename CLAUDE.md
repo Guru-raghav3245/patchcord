@@ -9,7 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activo CT10. The spec is `Activo MTP Tool — v1 Spec.md`; `PLAN.md` has per-phase detail and measurements.
 
 - **Repo:** https://github.com/Guru-raghav3245/mtp-tool (private, branch `main`).
-- **Release:** `dist/` holds `MTPTool-1.0.dmg`, the two LGPL source archives, and `SHA256SUMS.txt`. The user publishes all four on their website; that hasn't happened yet.
+- **Release:** `dist/` holds `MTPTool-1.0.dmg`, the two LGPL source archives, and `SHA256SUMS.txt`.
+- **Website:** `site/` is a static page on Vercel (Hobby), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). To release: run `make-dmg.sh`, replace `site/downloads/*` with the four `dist/` files, update the version/size/filenames in `site/index.html`, then commit and push.
 - **Install flow:** verified with a real Safari download: warning → Privacy & Security → Open Anyway → launch. Later launches have no prompts.
 - **Untested:**
   - Multi-device picker (see the reminder above)

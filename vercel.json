@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "outputDirectory": "site",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- site/ vercel.json",
+  "headers": [
+    {
+      "source": "/downloads/(.*)\\.dmg",
+      "headers": [
+        { "key": "Content-Type", "value": "application/x-apple-diskimage" },
+        { "key": "Content-Disposition", "value": "attachment" }
+      ]
+    }
+  ]
+}

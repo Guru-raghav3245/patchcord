@@ -4,3 +4,4 @@ vendor/prefix/
 dist/
 MTPTool.xcodeproj/
 .DS_Store
+.vercel/
