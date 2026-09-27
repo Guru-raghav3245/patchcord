@@ -18,6 +18,8 @@ libmtp is modified. The changes are in libmtp-ct10.patch, which applies with
   - Cancelling an upload now waits for the device and completes the pending
     bulk read, instead of stalling the next command for ~60 s.
   - Two small memory leaks fixed in LIBMTP_Set_Object_Filename.
+  - A failed open (e.g. the USB interface is claimed by another process) now
+    closes the USB device handle instead of leaking it.
 
 Build: MACOSX_DEPLOYMENT_TARGET=11.0 CFLAGS="-arch arm64 -O2" LDFLAGS="-arch arm64"
 ./configure --disable-static --disable-mtpz --with-udev=no (libmtp); libusb is

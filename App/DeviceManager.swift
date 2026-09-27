@@ -147,7 +147,7 @@ final class DeviceManager: ObservableObject {
                 LIBMTP_Release_Device(h)
                 handles[id] = nil
             }
-            if handles[id] == nil, let h = LIBMTP_Open_Raw_Device_Uncached(&r) {
+            if handles[id] == nil, let h = Self.open(&r) {
                 LIBMTP_Get_Storage(h, 0)
                 handles[id] = h
             }
@@ -177,9 +177,27 @@ final class DeviceManager: ObservableObject {
         return String(format: "USB device %04x:%04x", e.vendor_id, e.product_id)
     }
 
+    /// Some phones (e.g. Redmi A5) report their MTP interface as a camera, so macOS's ptpcamerad (behind Photos and
+    /// Image Capture) claims it on plug-in. launchd relaunches ptpcamerad within a second of it quitting, so stop it
+    /// and reopen as soon as it lets go; once we hold the interface it can't take it back.
+    private static func open(_ r: inout LIBMTP_raw_device_t) -> Handle? {
+        if let h = LIBMTP_Open_Raw_Device_Uncached(&r) { return h }
+        let (vendor, product) = (r.device_entry.vendor_id, r.device_entry.product_id)
+        guard let owner = usbExclusiveOwner(vendor: vendor, product: product), owner.name == "ptpcamerad" else { return nil }
+        print("[devices] taking \(name(of: r)) from ptpcamerad (pid \(owner.pid))")
+        kill(owner.pid, SIGKILL)
+        var waits = 0  // until the kernel has released its claim, at most 0.5 s
+        while waits < 50, usbExclusiveOwner(vendor: vendor, product: product)?.pid == owner.pid {
+            usleep(10_000)
+            waits += 1
+        }
+        return LIBMTP_Open_Raw_Device_Uncached(&r)
+    }
+
     private static func openError(_ r: LIBMTP_raw_device_t) -> String {
         if let owner = usbExclusiveOwner(vendor: r.device_entry.vendor_id, product: r.device_entry.product_id) {
-            return "In use by \(owner). Quit it, then click Retry."
+            let name = owner.name == "ptpcamerad" ? "Photos / Image Capture" : owner.name
+            return "In use by \(name). Quit it, then click Retry."
         }
         return "Couldn't open the device. Unplug and replug it, and check its USB mode is File transfer."
     }
@@ -201,21 +219,32 @@ extension DeviceManager.Device {
     }
 }
 
-/// Name of the app holding exclusive access to a USB device (e.g. MacDroid, Android File Transfer), if any.
-/// macOS exposes it as "pid 123, AppName" in the IOUSBHostDevice's UsbExclusiveOwner property.
-func usbExclusiveOwner(vendor: UInt16, product: UInt16) -> String? {
+/// The other process holding exclusive access to a USB device or one of its interfaces, if any: e.g. MacDroid
+/// or Android File Transfer (device), or macOS's ptpcamerad (the MTP interface of phones that report it as a camera).
+/// macOS exposes it as "pid 123, AppName" in the UsbExclusiveOwner property.
+func usbExclusiveOwner(vendor: UInt16, product: UInt16) -> (pid: pid_t, name: String)? {
     let match = IOServiceMatching("IOUSBHostDevice") as NSMutableDictionary
     match["idVendor"] = vendor
     match["idProduct"] = product
     var it: io_iterator_t = 0
     guard IOServiceGetMatchingServices(kIOMainPortDefault, match, &it) == KERN_SUCCESS else { return nil }
     defer { IOObjectRelease(it) }
-    while case let s = IOIteratorNext(it), s != 0 {
-        defer { IOObjectRelease(s) }
-        guard let owner = IORegistryEntryCreateCFProperty(s, "UsbExclusiveOwner" as CFString, kCFAllocatorDefault, 0)?
-            .takeRetainedValue() as? String,
-              !owner.hasPrefix("pid \(getpid()),") else { continue }
-        return owner.components(separatedBy: ", ").dropFirst().joined(separator: ", ")
+    while case let dev = IOIteratorNext(it), dev != 0 {
+        defer { IOObjectRelease(dev) }
+        var it2: io_iterator_t = 0
+        IORegistryEntryCreateIterator(dev, kIOServicePlane, IOOptionBits(kIORegistryIterateRecursively), &it2)
+        var children: [io_object_t] = []
+        while case let c = IOIteratorNext(it2), c != 0 { children.append(c) }
+        IOObjectRelease(it2)
+        defer { children.forEach { IOObjectRelease($0) } }
+        for entry in [dev] + children {
+            guard let owner = IORegistryEntryCreateCFProperty(entry, "UsbExclusiveOwner" as CFString,
+                                                              kCFAllocatorDefault, 0)?.takeRetainedValue() as? String
+            else { continue }
+            let parts = owner.components(separatedBy: ", ")  // "pid 123, AppName"
+            guard let pid = parts.first.flatMap({ pid_t($0.dropFirst(4)) }), pid != getpid() else { continue }
+            return (pid, parts.dropFirst().joined(separator: ", "))
+        }
     }
     return nil
 }

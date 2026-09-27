@@ -1,4 +1,4 @@
-MTP Tool 1.0
+MTP Tool 1.0.1
 Copy files between your Mac and Android phones and players (like the Activo CT10) over USB.
 Needs a Mac with Apple silicon (M1 or later) and macOS 12 or later.
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Release build -> dist/MTPTool-<version>.dmg, plus the library source archives LGPL requires us to publish
+# Release build -> site/downloads/MTPTool-<version>.dmg (replacing the previous one), plus the library source archives LGPL requires us to publish
 # next to it. Run scripts/build-libs.sh first.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -10,8 +10,9 @@ APP=build/Build/Products/Release/MTPTool.app
 VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
 codesign --verify --deep --strict "$APP"
 
-DIST="$ROOT/dist" STAGE="$(mktemp -d)"
+DIST="$ROOT/site/downloads" STAGE="$(mktemp -d)"
 mkdir -p "$DIST"
+rm -f "$DIST"/MTPTool-*.dmg
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 cp scripts/dmg-readme.txt "$STAGE/Read Me First.txt"

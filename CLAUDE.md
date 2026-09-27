@@ -9,11 +9,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activo CT10. The spec is `Activo MTP Tool — v1 Spec.md`; `PLAN.md` has per-phase detail and measurements.
 
 - **Repo:** https://github.com/Guru-raghav3245/mtp-tool (private, branch `main`).
-- **Release:** `dist/` holds `MTPTool-1.0.dmg`, the two LGPL source archives, and `SHA256SUMS.txt`.
-- **Website:** https://mtptool.vercel.app — `site/` is a static page on Vercel (Hobby, project `mtptool`), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). To release: run `make-dmg.sh`, replace `site/downloads/*` with the four `dist/` files, update the version/size/filenames in `site/index.html`, then commit and push.
+- **Release:** 1.0.1 (2026-09-27: Redmi A5 / ptpcamerad fix). `site/downloads/` holds `MTPTool-1.0.1.dmg`, the two LGPL source archives, and `SHA256SUMS.txt`.
+- **Website:** https://mtptool.vercel.app — `site/` is a static page on Vercel (Hobby, project `mtptool`), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). To release: bump `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` in `project.yml` and the first line of `scripts/dmg-readme.txt`, run `make-dmg.sh` (writes straight into `site/downloads/`, replacing the old DMG), update the version/size/filenames in `site/index.html`, then commit and push.
 - **Install flow:** verified with a real Safari download: warning → Privacy & Security → Open Anyway → launch. Later launches have no prompts.
 - **Untested:**
-  - Multi-device picker (see the reminder above)
+  - Multi-device picker: both CT10 and Redmi A5 open together (2026-09-27); switching and unplugging one not yet checked
   - microSD / second storage (no card available)
   - Real DSD files
   - Mac sleep/wake with the device connected
@@ -36,7 +36,7 @@ v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activ
 ./scripts/build-libs.sh   # one-time: downloads + builds arm64 libusb 1.0.30 and patched libmtp 1.1.23 into vendor/prefix
 xcodegen generate         # project.yml -> MTPTool.xcodeproj (gitignored; edit project.yml, never the xcodeproj)
 xcodebuild -project MTPTool.xcodeproj -scheme MTPTool -configuration Debug -derivedDataPath build build
-./scripts/make-dmg.sh     # Release build -> dist/MTPTool-<ver>.dmg + LGPL source archives + SHA256SUMS
+./scripts/make-dmg.sh     # Release build -> site/downloads/MTPTool-<ver>.dmg + LGPL source archives + SHA256SUMS
 ```
 
 There are no unit tests. The app has headless commands for testing against a real device (see `App/CLI.swift` below); e.g. `build/Build/Products/Debug/MTPTool.app/Contents/MacOS/MTPTool --probe /`.
@@ -53,15 +53,17 @@ There are no unit tests. The app has headless commands for testing against a rea
   3. Regenerate `vendor/patches/libmtp-ct10.patch` as a `diff -u` against pristine sources, with `a/src/...` and `b/src/...` paths.
   4. Rerun `build-libs.sh`.
   5. Update `vendor/licenses/NOTICE.txt` whenever the patch or a library version changes.
-- **Gatekeeper testing:** only a real browser download reproduces the first-launch warning (e.g. `python3 -m http.server` in `dist/`, then Safari). Hand-set `com.apple.quarantine` doesn't propagate into the DMG, and locally built files have no quarantine at all.
+- **Gatekeeper testing:** only a real browser download reproduces the first-launch warning (e.g. `python3 -m http.server` in `site/`, then Safari). Hand-set `com.apple.quarantine` doesn't propagate into the DMG, and locally built files have no quarantine at all.
 
 ## CT10 / device gotchas
 
-- **`vendor/patches/libmtp-ct10.patch` is essential; don't drop it.** It fixes four things:
+- **`vendor/patches/libmtp-ct10.patch` is essential; don't drop it.** It fixes these:
   - **Reset on close:** libmtp USB-resets Android devices on close by default, and the CT10 then times out on every later session until replugged. The patch adds a CT10 table entry without `FORCE_RESET_ON_CLOSE`, and stops libmtp re-ORing Android default flags onto entries that set their own.
   - **Upload cancel:** libmtp didn't wait for the device after a cancelled send, so Android's f_mtp swallowed the next command as object data (a 60 s stall). The patch waits for device-ready and sends a zero-length packet. Android deletes the partial object itself.
   - **Rename leaks:** two small leaks in `LIBMTP_Set_Object_Filename`.
+  - **Failed-open leak:** when `init_ptp_usb` failed after `libusb_open` (e.g. the claim was refused), the handle was never closed, so every Retry left the app holding the device.
 - **Busy device:** MacDroid and Android File Transfer take `UsbExclusiveOwner` of the device, and the claim then fails with -3. Check with `ioreg -p IOUSB -w0 -l | grep UsbExclusiveOwner`.
+- **ptpcamerad:** some phones (e.g. Redmi A5, Unisoc, `2717:ff48`) report their MTP interface as class 6 (Still Image), so macOS's `ptpcamerad` (behind Photos/Image Capture) claims the *interface* on plug-in. launchd relaunches it within a second, so `DeviceManager.open` SIGKILLs it and reopens as soon as the claim is released; once we hold the interface it can't take it back. Photos/Image Capture can't import from that phone until it's unplugged or the app quits. Check with `ioreg -p IOService -w0 -rc IOUSBHostInterface -l | grep UsbExclusiveOwner`. Such phones show libmtp's table name ("Xiaomi Mi-2s") until opened.
 - **Device clock:** the CT10's clock reads 2018-01-01, so files created on it get that date. That's the device, not the app.
 - **Stable id:** the CT10 keeps the same libusb id (`bus-devnum`, e.g. `1-1`) across a replug, so `DeviceManager` re-validates held sessions on every rescan instead of trusting the id.
 - **Debugging:** the GUI app logs `[devices] ...` lines to stdout on every change (run the binary directly to see them). `scripts/reopen-test.c` checks open → close → reopen in one process.
@@ -74,7 +76,7 @@ Swift + SwiftUI over libmtp/libusb through a bridging header (`App/Bridging-Head
   - **Hotplug:** `USBWatcher` (IOKit USB add/remove notifications) triggers a debounced (1 s) libmtp rescan.
   - **Sessions:** every detected device stays open (one session each) until unplugged or the app quits; sessions are closed on `willTerminate`.
   - **Threading:** all libmtp calls run on one serial `mtp` queue, and results are published on main.
-  - **Busy device:** if an open fails, `usbExclusiveOwner` reads the `UsbExclusiveOwner` IORegistry property to name the blocking app.
+  - **Busy device:** if an open fails, `usbExclusiveOwner` reads the `UsbExclusiveOwner` IORegistry property of the device and its interfaces to name the blocking app. If it's `ptpcamerad`, `open` takes the device from it (see above).
   - **Listing:** `list(device:storage:folder:)` blocks on the `mtp` queue, so the UI calls it from `Task.detached`. The root folder is `DeviceManager.rootFolder` (0xFFFFFFFF). libmtp returns NULL for both empty and failed listings; the error stack tells them apart.
 - `App/Transfers.swift`: download/upload batches, one at a time.
   - **Planning:** a step on the `mtp` queue expands folders into a flat file list, creating the folders locally or on the device, and skipping hidden files on upload. Files then copy one by one.

@@ -46,11 +46,10 @@
  }
 --- a/src/libusb1-glue.c
 +++ b/src/libusb1-glue.c
-@@ -1368,6 +1368,24 @@
- 			break;
+@@ -1369,6 +1369,24 @@
  		}
  		bytes_left_to_transfer -= written;
-+	}
+ 	}
 +	if (ret == PTP_ERROR_CANCEL) {
 +		/*
 +		 * Cancel here rather than in ptp_transaction_new() so we can wait
@@ -68,9 +67,20 @@
 +		 * swallow our next command. A zero-length packet completes it.
 +		 */
 +		libusb_bulk_transfer(ptp_usb->handle, ptp_usb->outep, NULL, 0, &zlp, 1000);
- 	}
++	}
  	if (ret != PTP_RC_OK && ret != PTP_ERROR_CANCEL)
  		ret = PTP_ERROR_IO;
+ 	return ret;
+@@ -2294,6 +2312,9 @@
+ 
+   /* Attempt to initialize this device */
+   if (init_ptp_usb(params, ptp_usb, ldevice) < 0) {
++    /* init_ptp_usb can fail after libusb_open (e.g. claim refused); don't leak the open device */
++    if (ptp_usb->handle != NULL)
++      libusb_close(ptp_usb->handle);
+     free (ptp_usb);
+     LIBMTP_ERROR("LIBMTP PANIC: Unable to initialize device\n");
+     libusb_free_device_list (devs, 0);
 --- a/src/ptp.c
 +++ b/src/ptp.c
 @@ -174,9 +174,8 @@
