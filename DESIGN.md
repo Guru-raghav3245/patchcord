@@ -37,7 +37,7 @@
 | `--text` | `#E8E6E1` bone | `#16171A` ink | primary text |
 | `--muted` | `#8C8A85` | `#66645F` | secondary text, labels |
 | `--amber` | `#F2A33A` | `#F2A33A` | indicator light, fills, selection |
-| `--amber-ink` | `#F2A33A` | `#B86E0E` | amber *text* (links, italic headline) |
+| `--amber-ink` | `#F2A33A` | `#9E5C09` | amber *text* (links, italic headline); light value is 4.7:1 on paper (`#B86E0E` was 3.6:1) |
 | `--ok` | `#5FB37A` | `#2F8A4E` | success |
 | `--err` | `#E0604F` | `#C2412F` | errors |
 

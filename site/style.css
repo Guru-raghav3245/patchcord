@@ -15,7 +15,7 @@
   :root {
     --bg: #F4F2ED; --panel: #FBFAF7; --panel-2: #EEEBE4; --line: #DAD6CD;
     --text: #16171A; --muted: #66645F; --faint: #9C998F;
-    --amber-ink: #B86E0E; --glow: rgba(242, 163, 58, .35);
+    --amber-ink: #9E5C09; --glow: rgba(242, 163, 58, .35);  /* 4.7:1 on paper; #B86E0E was 3.6:1 */
     --brush: repeating-linear-gradient(90deg, rgba(0, 0, 0, .02) 0 1px, transparent 1px 3px);
     color-scheme: light;
   }
