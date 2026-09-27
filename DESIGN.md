@@ -50,7 +50,7 @@
 - **Scale:** 2xs(2) xs(4) sm(8) md(16) lg(24) xl(32) 2xl(48) 3xl(64) 4xl(72).
 
 ## Layout
-- **Approach:** hybrid. The site hero is asymmetric (copy + CTA left, real app screenshot right); below it a spec sheet (mono label column 200 px + value column, hairline rows) instead of cards.
+- **Approach:** hybrid. The site hero is asymmetric (copy + CTA left, the HTML-drawn app window right); below it a spec sheet (mono label column 200 px + value column, hairline rows) instead of cards.
 - **Grid:** hero 1fr / 1.15fr on desktop; single column below 860 px. 16–24 px side gutters; no horizontal scroll on phones.
 - **Max content width:** 1120 px.
 - **Border radius:** sm 5 px (code) · md 8 px (buttons) · lg 12–14 px (panels, window frames). No pill buttons.
