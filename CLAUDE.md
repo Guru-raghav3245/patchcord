@@ -23,6 +23,12 @@ v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activ
   - A second Mac
 - **Known limit:** listing is about 9 ms per file on Android (libmtp queries objects one by one), so a flat 2,000-file folder takes about 18 s.
 - **Possible next steps:** send the libmtp patch upstream; make the repo public (it would host the LGPL source).
+- **SwiftUI review (2026-09-27, `swiftui-pro` skill, not yet applied)**, all in `App/ContentView.swift`:
+  1. `Table(entries.sorted(using:))` re-sorts in `body` on every transfer-progress tick; sort in `load()` and `.onChange(of: sortOrder)` instead.
+  2. `load()` uses `Task.detached` + blocking `mtp.sync`, which ties up a cooperative-pool thread per listing (up to ~18 s); resume a continuation from `mtp.async` instead. The CLI keeps the sync `list`.
+  3. Back / New Folder / Delete are icon-only with no VoiceOver label: use `Label(...)` + `.labelStyle(.iconOnly)`.
+  4. Low: `foregroundColor` → `foregroundStyle`; `background(_:alignment:)` → `background(_:in:)`; inflected plurals in `TransferBar.summary`; the `original!` force unwrap in `NameSheet`.
+  - Skill rules that need macOS 13/14 (`@Observable`, `ContentUnavailableView`, the two-parameter `onChange`, `URL.downloadsDirectory`) don't apply at the macOS 12 target.
 
 ## Build
 
