@@ -23,6 +23,7 @@ v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activ
   - A second Mac
 - **Known limit:** listing is about 9 ms per file on Android (libmtp queries objects one by one), so a flat 2,000-file folder takes about 18 s.
 - **Possible next steps:** send the libmtp patch upstream; make the repo public (it would host the LGPL source).
+- **Next app release:** set `Theme.amberInk` light to `#9E5C09` (breadcrumbs on paper are 4.25:1 with `#A8620A`; the site already uses `#9E5C09`). Found by /design-review 2026-09-27.
 - **SwiftUI review (2026-09-27, `swiftui-pro` skill, not yet applied)**, all in `App/ContentView.swift`:
   1. `Table(entries.sorted(using:))` re-sorts in `body` on every transfer-progress tick; sort in `load()` and `.onChange(of: sortOrder)` instead.
   2. `load()` uses `Task.detached` + blocking `mtp.sync`, which ties up a cooperative-pool thread per listing (up to ~18 s); resume a continuation from `mtp.async` instead. The CLI keeps the sync `list`.
