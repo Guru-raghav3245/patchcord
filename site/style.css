@@ -1,0 +1,110 @@
+/* MTP Tool site. Tokens and rules: DESIGN.md ("the faceplate"). Fonts are self-hosted (OFL, see fonts/). */
+@font-face { font-family: "Instrument Sans"; src: url(fonts/InstrumentSans-normal.woff2) format("woff2"); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: "Instrument Serif"; src: url(fonts/InstrumentSerif-normal.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Instrument Serif"; src: url(fonts/InstrumentSerif-italic.woff2) format("woff2"); font-style: italic; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url(fonts/GeistMono-normal.woff2) format("woff2"); font-weight: 400 600; font-display: swap; }
+
+:root {
+  --bg: #0E0F11; --panel: #17191C; --panel-2: #1D2024; --line: #2A2D31;
+  --text: #E8E6E1; --muted: #8C8A85; --faint: #5C5B58;
+  --amber: #F2A33A; --amber-ink: #F2A33A; --glow: rgba(242, 163, 58, .45);
+  --brush: repeating-linear-gradient(90deg, rgba(255, 255, 255, .018) 0 1px, transparent 1px 3px);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #F4F2ED; --panel: #FBFAF7; --panel-2: #EEEBE4; --line: #DAD6CD;
+    --text: #16171A; --muted: #66645F; --faint: #9C998F;
+    --amber-ink: #B86E0E; --glow: rgba(242, 163, 58, .35);
+    --brush: repeating-linear-gradient(90deg, rgba(0, 0, 0, .02) 0 1px, transparent 1px 3px);
+    color-scheme: light;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 "Instrument Sans", -apple-system, sans-serif; -webkit-font-smoothing: antialiased;
+}
+a { color: var(--amber-ink); text-underline-offset: 3px; }
+a:focus-visible, .cta:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
+code {
+  font: 13px/1.5 "Geist Mono", ui-monospace, monospace; background: var(--panel-2);
+  border: 1px solid var(--line); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
+.label {
+  font: 500 11px/1.4 "Geist Mono", ui-monospace, monospace; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted);
+}
+.serif { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; }
+
+/* the indicator light: fades on once, then stays lit */
+.led {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none;
+  background: var(--amber); box-shadow: 0 0 10px var(--glow), 0 0 2px var(--amber);
+  animation: led-on 1.2s ease-out both;
+}
+@keyframes led-on { from { opacity: .15; box-shadow: none; } 60% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .led { animation: none; } }
+
+/* header */
+.site-nav { display: flex; align-items: center; gap: 10px; height: 64px; border-bottom: 1px solid var(--line); }
+.site-nav img { width: 24px; height: 24px; }
+.site-nav .name { font-weight: 600; letter-spacing: -.01em; color: var(--text); text-decoration: none; }
+.site-nav nav { margin-left: auto; display: flex; gap: 24px; }
+.site-nav nav a { color: var(--muted); text-decoration: none; font-size: 15px; }
+.site-nav nav a:hover { color: var(--text); }
+
+/* hero */
+.hero-band { background: var(--brush); border-bottom: 1px solid var(--line); overflow: hidden; }
+.hero { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; padding: 72px 0 64px; }
+.hero .status { display: flex; align-items: center; gap: 10px; }
+.hero h1 { font-size: clamp(48px, 6.2vw, 76px); line-height: .98; letter-spacing: -.01em; margin: 20px 0; }
+.hero h1 em { color: var(--amber-ink); }
+.hero p { color: var(--muted); font-size: 18px; max-width: 28em; margin: 0 0 32px; }
+.cta {
+  display: inline-flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 24px;
+  background: var(--text); color: var(--bg); text-decoration: none; font-weight: 600; font-size: 16px;
+  border-radius: 8px; transition: background .15s ease-out, color .15s ease-out;
+}
+.cta:hover { background: var(--amber); color: #16171A; }
+.req { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 18px; }
+.shot { margin: 0; }
+/* the window is wide: show it near real size and let it run off the right edge instead of shrinking it */
+.shot img { display: block; width: min(1040px, 165%); max-width: none; height: auto; margin: -24px 0 -40px -30px; }
+
+/* spec sheet */
+.sheet { padding: 72px 0 8px; }
+.sheet h2 { font-size: 40px; line-height: 1.1; margin: 0 0 24px; }
+.rows { border-top: 1px solid var(--line); margin: 0; padding: 0; list-style: none; }
+.rows > li { display: grid; grid-template-columns: 200px 1fr; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.rows .label { padding-top: 5px; }
+.rows .v { font-size: 17px; }
+.rows .v small { display: block; color: var(--muted); font-size: 15px; margin-top: 2px; }
+.rows .v strong { font-weight: 600; }
+.note { color: var(--muted); font-size: 15px; max-width: 46em; margin: 20px 0 0; }
+
+footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding: 56px 0 40px; color: var(--muted); font-size: 14px; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; gap: 40px; padding: 48px 0 40px; }
+  .shot img { width: 170%; margin: -12px 0 -24px -16px; }
+  .rows > li { grid-template-columns: 1fr; gap: 4px; }
+  .sheet { padding-top: 56px; }
+  .sheet h2 { font-size: 34px; }
+}
+@media (max-width: 480px) {
+  .wrap { padding-inline: 16px; }
+  .site-nav nav { gap: 16px; }
+  .site-nav nav a { font-size: 14px; }
+  .cta { width: 100%; justify-content: center; }
+}
+
+/* 404 */
+.lost { max-width: 560px; padding: 96px 0; }
+.lost h1 { font-size: clamp(40px, 6vw, 56px); line-height: 1.05; margin: 20px 0 16px; }
+.lost p { color: var(--muted); font-size: 18px; margin: 0 0 32px; }
+.lost .home { display: inline-block; margin-top: 20px; }
+.sheet:focus { outline: none; }  /* focused by the nav glide for screen readers; no ring needed */

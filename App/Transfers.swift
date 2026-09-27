@@ -5,10 +5,18 @@ struct TransferStatus {
     var count = 0     // files, known once folders have been expanded
     var index = 0
     var name = ""
-    var fraction = 0.0
+    var fraction = 0.0         // of the current file
+    var totalBytes: UInt64 = 0 // whole batch, known with `count`
+    var doneBytes: UInt64 = 0  // files already finished (or failed)
+    var currentBytes: UInt64 = 0
     var finished = false
     var cancelled = false
     var errors: [String] = []
+
+    /// Whole-batch progress by bytes, so a 300 MB FLAC weighs more than a 3 MB MP3.
+    var overall: Double {
+        totalBytes == 0 ? 0 : min(1, (Double(doneBytes) + fraction * Double(currentBytes)) / Double(totalBytes))
+    }
 }
 
 /// File and folder copies in both directions. One batch at a time: folders are expanded into a flat
@@ -20,6 +28,7 @@ extension DeviceManager {
     /// One file to copy. `run` returns an error message, or nil on success or cancel.
     private struct Job {
         let name: String
+        let size: UInt64  // for the overall progress bar
         let run: (Handle) -> String?
     }
 
@@ -38,7 +47,7 @@ extension DeviceManager {
             var errors: [String] = []
             func add(_ e: Entry, into dir: URL, topLevel: Bool) {
                 guard e.isFolder else {
-                    jobs.append(Job(name: e.name) { h in
+                    jobs.append(Job(name: e.name, size: e.size) { h in
                         switch self.downloadOne(h, e, to: dir) {
                         case .success(let url): if topLevel { written.append(url) }; return nil
                         case .failure(let err): return err.errorDescription
@@ -59,6 +68,12 @@ extension DeviceManager {
             }
             entries.forEach { add($0, into: dir, topLevel: true) }
             return (jobs, errors)
+        }, undo: { _ in
+            // Cancelled: remove every top-level file and folder this batch created (folders take their contents).
+            defer { written.removeAll() }
+            return written.compactMap { url in
+                (try? FileManager.default.removeItem(at: url)) == nil ? "\(url.lastPathComponent): couldn't remove it from your Mac" : nil
+            }
         }, done: { ok in
             completion?(written, ok)
         })
@@ -66,6 +81,7 @@ extension DeviceManager {
 
     /// Uploads local files and folders into `folder` on the device. Hidden files (.DS_Store etc.) are skipped.
     func upload(device: String, storage: UInt32, folder: UInt32, files: [URL], completion: (() -> Void)? = nil) {
+        var added = Set<String>()  // top-level names this batch creates in `folder`
         runBatch(verb: "Uploading", device: device, plan: { h in
             var jobs: [Job] = []
             var errors: [String] = []
@@ -75,26 +91,38 @@ extension DeviceManager {
                 if topLevel, existing.contains(name) {
                     return errors.append("\(name): something with this name already exists here")
                 }
-                guard (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true else {
-                    return jobs.append(Job(name: name) { h in self.uploadOne(h, url, storage: storage, folder: parent) })
+                let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .fileSizeKey])
+                guard values?.isDirectory == true else {
+                    let size = UInt64(values?.fileSize ?? 0)
+                    return jobs.append(Job(name: name, size: size) { h in self.uploadOne(h, url, storage: storage, folder: parent) })
                 }
                 let id = self.makeFolder(h, name: name, parent: parent, storage: storage)
                 guard id != 0 else { return errors.append("\(name): couldn't create the folder on the device") }
                 let children = (try? FileManager.default.contentsOfDirectory(
-                    at: url, includingPropertiesForKeys: [.isDirectoryKey], options: .skipsHiddenFiles)) ?? []
+                    at: url, includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey], options: .skipsHiddenFiles)) ?? []
                 for child in children.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
                     add(child, into: id, topLevel: false)
                 }
             }
             files.forEach { add($0, into: folder, topLevel: true) }
+            added = Set(files.map(\.lastPathComponent)).subtracting(existing)
             return (jobs, errors)
+        }, undo: { h in
+            // Cancelled: delete what this batch added to the device. Names that already existed were refused
+            // in planning, so nothing that was there before is touched.
+            guard let h, !added.isEmpty else { return [] }
+            guard let now = try? self.listFolder(h, storage: storage, folder: folder) else {
+                return ["Couldn't read the device to remove the partial upload."]
+            }
+            return now.filter { added.contains($0.name) }.compactMap { self.deleteTree(h, $0) }
         }, done: { _ in
             completion?()
         })
     }
 
+    /// `undo` runs on the mtp queue only if the batch was cancelled, and returns what it couldn't undo.
     private func runBatch(verb: String, device: String, plan: @escaping (Handle) -> ([Job], [String]),
-                          done: @escaping (_ ok: Bool) -> Void) {
+                          undo: @escaping (Handle?) -> [String], done: @escaping (_ ok: Bool) -> Void) {
         guard !isTransferring else { return done(false) }  // callers (e.g. drag-out) always get an answer
         cancelLock.withLock { cancelRequested = false }
         transfer = TransferStatus(verb: verb)
@@ -106,17 +134,28 @@ extension DeviceManager {
             } else {
                 errors.append("The device was disconnected.")
             }
-            DispatchQueue.main.async { self.transfer?.count = jobs.count }
+            let total = jobs.reduce(0) { $0 + $1.size }
+            DispatchQueue.main.async { self.transfer?.count = jobs.count; self.transfer?.totalBytes = total }
+            var copied: UInt64 = 0
             for (i, job) in jobs.enumerated() {
                 if self.isCancelled { break }
-                DispatchQueue.main.async { self.transfer?.index = i; self.transfer?.name = job.name; self.transfer?.fraction = 0 }
+                DispatchQueue.main.async { [copied] in
+                    self.transfer?.index = i; self.transfer?.name = job.name; self.transfer?.fraction = 0
+                    self.transfer?.currentBytes = job.size; self.transfer?.doneBytes = copied
+                }
                 guard let h = self.handles[device] else {
                     errors.append("The device was disconnected.")
                     break
                 }
                 if let err = job.run(h) { errors.append(err) }
+                copied += job.size
             }
+            DispatchQueue.main.async { [copied] in self.transfer?.doneBytes = copied; self.transfer?.fraction = 0 }
             let cancelled = self.isCancelled
+            if cancelled {  // cancel means the whole batch, not just the file in flight
+                DispatchQueue.main.async { self.transfer?.name = "Removing what was already copied…" }
+                errors = undo(self.handles[device])
+            }
             done(errors.isEmpty && !cancelled)
             DispatchQueue.main.async {
                 self.transfer?.finished = true

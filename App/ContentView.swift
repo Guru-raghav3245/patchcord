@@ -1,34 +1,130 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+// Look: DESIGN.md "the faceplate" (graphite / paper, engraved mono labels, one amber light), matching the website.
+
 struct ContentView: View {
     @EnvironmentObject var manager: DeviceManager
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        Group {
             if manager.devices.isEmpty {
-                Text("Connect an MTP device over USB.").foregroundColor(.secondary)
-                Spacer()
-            } else {
-                if manager.devices.count > 1 {
-                    Picker("Device", selection: $manager.activeID) {
-                        ForEach(manager.devices) { Text($0.name).tag(Optional($0.id)) }
-                    }
-                }
-                if let device = manager.active {
-                    if let error = device.error {
-                        Text(device.name).font(.title2)
-                        Text(error).foregroundColor(.red)
-                        Button("Retry") { manager.scheduleRescan(after: 0) }
-                        Spacer()
-                    } else {
-                        BrowserView(device: device).id(device.id)  // fresh browser state per device
-                    }
+                NoDeviceView()
+            } else if let device = manager.active {
+                if let error = device.error {
+                    DeviceErrorView(device: device, error: error)
+                } else {
+                    BrowserView(device: device).id(device.id)  // fresh browser state per device
                 }
             }
         }
-        .padding()
-        .frame(minWidth: 640, minHeight: 400)
+        .frame(minWidth: 720, minHeight: 460)
+        .background(Theme.bg.ignoresSafeArea())
+    }
+}
+
+/// Status line + device name, shared by the browser and the error screen. Clears the hidden title bar's traffic lights.
+private struct DeviceHeader<Trailing: View>: View {
+    @EnvironmentObject var manager: DeviceManager
+    let name: String
+    let status: String
+    var led = Theme.amber
+    @ViewBuilder var trailing: Trailing
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 10) {
+                LED(color: led)
+                EngravedLabel(status)
+            }
+            HStack(alignment: .firstTextBaseline) {
+                if manager.devices.count > 1 {
+                    DeviceMenu(name: name)
+                } else {
+                    Text(name).font(Theme.serif(38)).foregroundColor(Theme.text).lineLimit(1)
+                }
+                Spacer()
+                trailing
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 10)
+        .padding(.bottom, 14)
+        .background(BrushedMetal().ignoresSafeArea(.all, edges: .top))  // grain continues behind the traffic lights
+        .overlay(Rectangle().fill(Theme.line).frame(height: 1), alignment: .bottom)
+    }
+}
+
+/// With more than one device connected, the device name itself is the switcher.
+private struct DeviceMenu: View {
+    @EnvironmentObject var manager: DeviceManager
+    let name: String
+    @State private var hover = false
+    var body: some View {
+        Menu {
+            Picker("Device", selection: $manager.activeID) {
+                ForEach(manager.devices) { Text($0.name).tag(Optional($0.id)) }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+        } label: {
+            // One Text: a menu button puts a separate image before its title, so the chevron is inline instead.
+            let chevron = Text(Image(systemName: "chevron.down")).font(.system(size: 14, weight: .semibold))
+                .foregroundColor(hover ? Theme.amberInk : Theme.muted)
+            Text("\(Text(name).font(Theme.serif(38)).foregroundColor(Theme.text))  \(chevron)").lineLimit(1)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .onHover { hover = $0 }
+        .help("Switch device")
+        .accessibilityLabel("Device: \(name)")
+    }
+}
+
+/// The website hero's faint vertical grain.
+private struct BrushedMetal: View {
+    @Environment(\.colorScheme) private var scheme
+    var body: some View {
+        Canvas { ctx, size in
+            let c = scheme == .dark ? Color.white.opacity(0.018) : Color.black.opacity(0.02)
+            for x in stride(from: 0, to: size.width, by: 3) {
+                ctx.fill(Path(CGRect(x: x, y: 0, width: 1, height: size.height)), with: .color(c))
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+private struct NoDeviceView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 10) { LED(lit: false); EngravedLabel("No device connected") }
+            Text("Plug it in.").font(Theme.serif(64)).foregroundColor(Theme.text)
+            Text("Connect a music player or Android phone over USB, and set its USB mode to File transfer. It shows up here on its own.")
+                .font(Theme.sans(16)).foregroundColor(Theme.muted).frame(maxWidth: 440, alignment: .leading)
+        }
+        .padding(.horizontal, 40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .background(BrushedMetal().ignoresSafeArea())
+    }
+}
+
+private struct DeviceErrorView: View {
+    @EnvironmentObject var manager: DeviceManager
+    let device: DeviceManager.Device
+    let error: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            DeviceHeader(name: device.name, status: "Can't open", led: Theme.err) { EmptyView() }
+            VStack(alignment: .leading, spacing: 20) {
+                Text(error).font(Theme.sans(16)).foregroundColor(Theme.text).frame(maxWidth: 480, alignment: .leading)
+                Button("Retry") { manager.scheduleRescan(after: 0) }.buttonStyle(.faceplatePrimary)
+            }
+            .padding(24)
+            Spacer()
+        }
     }
 }
 
@@ -70,101 +166,146 @@ private struct BrowserView: View {
     }
 
     var body: some View {
-        HStack {
-            Text(device.name).font(.title2)
-            Spacer()
-            if device.storages.count > 1 {
-                Picker("Storage", selection: Binding(get: { storage?.id }, set: { storageID = $0; path = [] })) {
-                    ForEach(device.storages) { Text($0.name).tag(Optional($0.id)) }
-                }
-                .fixedSize()
-            }
-            if let storage {
-                Text("\(bytes(storage.free)) free of \(bytes(storage.capacity))").foregroundColor(.secondary)
-            }
-        }
-
-        HStack(spacing: 4) {
-            Button { path.removeLast() } label: { Image(systemName: "chevron.left") }
-                .disabled(path.isEmpty)
-                .keyboardShortcut("[", modifiers: .command)
-            Button(storage?.name ?? "Storage") { path = [] }.buttonStyle(.link)
-            ForEach(Array(path.enumerated()), id: \.element.id) { i, folder in
-                Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)
-                Button(folder.name) { path.removeSubrange((i + 1)...) }.buttonStyle(.link)
-            }
-            Spacer()
-            Button { sheet = .newFolder } label: { Image(systemName: "folder.badge.plus") }
-                .help("New Folder").disabled(busy).keyboardShortcut("n", modifiers: [.command, .shift])
-            Button { pendingDelete = selected } label: { Image(systemName: "trash") }
-                .help("Delete").disabled(busy || selection.isEmpty).keyboardShortcut(.delete, modifiers: .command)
-            Button("Download…") { chooseDownload(selected) }.disabled(busy || selection.isEmpty)
-            Button("Upload…", action: chooseUpload).disabled(busy)
-        }
-
-        Table(entries.sorted(using: sortOrder), selection: $selection, sortOrder: $sortOrder) {
-            TableColumn("Name", value: \.name, comparator: .localizedStandard) { e in
-                Label(e.name, systemImage: e.isFolder ? "folder" : "doc").rowActions(e, self).onDrag { dragProvider(e) }
-            }
-            TableColumn("Size", value: \.size) { e in
-                Text(e.isFolder ? "--" : bytes(e.size)).rowActions(e, self)
-            }
-            .width(ideal: 80)
-            TableColumn("Kind", value: \.kind) { e in Text(e.kind).rowActions(e, self) }
-            TableColumn("Date Modified", value: \.modified) { e in
-                Text(e.modified.formatted(date: .abbreviated, time: .shortened)).rowActions(e, self)
-            }
-        }
-        .onDrop(of: [.fileURL], isTargeted: $dropTargeted, perform: drop)
-        .border(dropTargeted ? Color.accentColor : .clear, width: 2)
-        .overlay {
-            if loading {
-                ProgressView()
-            } else if let error {
-                Text(error).foregroundColor(.red)
-            } else if entries.isEmpty {
-                Text("Empty folder").foregroundColor(.secondary)
-            }
-        }
-        .task(id: LoadKey(storage: storage?.id, folder: folder, version: manager.listingVersion)) { await load() }
-        .sheet(item: $sheet) { kind in
-            NameSheet(kind: kind, taken: Set(entries.map(\.name))) { name in
-                guard let storage = storage?.id else { return }
-                switch kind {
-                case .newFolder:
-                    manager.createFolder(device: device.id, storage: storage, parent: folder, name: name) { opError = $0 }
-                case .rename(let e):
-                    manager.rename(device: device.id, entry: e, to: name) { opError = $0 }
+        VStack(spacing: 0) {
+            DeviceHeader(name: device.name, status: manager.isTransferring ? "Transferring · USB" : "Connected · USB") {
+                if let storage {
+                    HStack(spacing: 14) {
+                        if device.storages.count > 1 {
+                            Menu {
+                                ForEach(device.storages) { s in Button(s.name) { storageID = s.id; path = [] } }
+                            } label: { EngravedLabel(storage.name, color: Theme.text) }
+                            .menuStyle(.borderlessButton).fixedSize()
+                        }
+                        EngravedLabel("\(bytes(storage.free)) free of \(bytes(storage.capacity))")
+                    }
                 }
             }
-        }
-        .confirmationDialog(deleteTitle, isPresented: Binding(get: { !pendingDelete.isEmpty },
-                                                              set: { if !$0 { pendingDelete = [] } })) {
-            Button("Delete", role: .destructive) {
-                manager.delete(device: device.id, entries: pendingDelete) { opError = $0 }
-                pendingDelete = []
-            }
-        } message: {
-            Text("This deletes them from the device, including everything inside folders. It can't be undone.")
-        }
-        .alert(opError ?? "", isPresented: Binding(get: { opError != nil }, set: { if !$0 { opError = nil } })) {}
 
-        if let t = manager.transfer { TransferBar(status: t) }
+            VStack(spacing: 12) {
+                HStack(spacing: 6) {
+                    Button { path.removeLast() } label: { Label("Back", systemImage: "chevron.left").labelStyle(.iconOnly) }
+                        .buttonStyle(.faceplate)
+                        .disabled(path.isEmpty)
+                        .keyboardShortcut("[", modifiers: .command)
+                    crumb(storage?.name ?? "Storage", current: path.isEmpty) { path = [] }
+                    ForEach(Array(path.enumerated()), id: \.element.id) { i, folder in
+                        Text("›").font(Theme.sans(15)).foregroundColor(Theme.faint)
+                        crumb(folder.name, current: i == path.count - 1) { path.removeSubrange((i + 1)...) }
+                    }
+                    Spacer(minLength: 12)
+                    Button { sheet = .newFolder } label: { Label("New Folder", systemImage: "folder.badge.plus").labelStyle(.iconOnly) }
+                        .buttonStyle(.faceplate)
+                        .help("New Folder").disabled(busy).keyboardShortcut("n", modifiers: [.command, .shift])
+                    Button { pendingDelete = selected } label: { Label("Delete", systemImage: "trash").labelStyle(.iconOnly) }
+                        .buttonStyle(.faceplate)
+                        .help("Delete").disabled(busy || selection.isEmpty).keyboardShortcut(.delete, modifiers: .command)
+                    Button("Download…") { chooseDownload(selected) }
+                        .buttonStyle(.faceplate).disabled(busy || selection.isEmpty)
+                    Button("Upload…", action: chooseUpload)
+                        .buttonStyle(.faceplatePrimary).disabled(busy)
+                }
+
+                Table(selection: $selection, sortOrder: $sortOrder) {
+                    TableColumn("Name", value: \.name, comparator: .localizedStandard) { e in
+                        HStack(spacing: 8) {
+                            Image(systemName: e.isFolder ? "folder" : "music.note").foregroundStyle(.secondary).frame(width: 16)
+                            Text(e.name).font(Theme.sans(13.5)).lineLimit(1).truncationMode(.middle)
+                        }
+                        .rowActions(e, self)
+                    }
+                    TableColumn("Size", value: \.size) { e in
+                        Text(e.isFolder ? "--" : bytes(e.size)).font(Theme.mono(11.5, .regular)).foregroundStyle(.secondary)
+                            .rowActions(e, self)
+                    }
+                    .width(ideal: 90)
+                    TableColumn("Kind", value: \.kind) { e in
+                        Text(e.kind).font(Theme.sans(13)).foregroundStyle(.secondary).rowActions(e, self)
+                    }
+                    TableColumn("Date Modified", value: \.modified) { e in
+                        Text(e.modified.formatted(date: .abbreviated, time: .shortened)).font(Theme.mono(11.5, .regular))
+                            .foregroundStyle(.secondary).rowActions(e, self)
+                    }
+                } rows: {
+                    ForEach(entries.sorted(using: sortOrder)) { e in TableRow(e).itemProvider { dragProvider(e) } }
+                }
+                .modifier(RowMenu(browser: self))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(dropTargeted ? Theme.amber : Theme.line,
+                                                                   lineWidth: dropTargeted ? 2 : 1))
+                .onDrop(of: [.fileURL], isTargeted: $dropTargeted, perform: drop)
+                .overlay {
+                    if loading {
+                        ProgressView().controlSize(.small)
+                    } else if let error {
+                        HStack(spacing: 10) { LED(color: Theme.err); Text(error).font(Theme.sans(14)) }
+                    } else if entries.isEmpty {
+                        VStack(spacing: 8) {
+                            Text("Empty folder").font(Theme.serif(28)).foregroundColor(Theme.muted)
+                            EngravedLabel("Drop files here to upload", color: Theme.faint)
+                        }
+                    }
+                }
+                .task(id: LoadKey(storage: storage?.id, folder: folder, version: manager.listingVersion)) { await load() }
+                .sheet(item: $sheet) { kind in
+                    NameSheet(kind: kind, taken: Set(entries.map(\.name))) { name in
+                        guard let storage = storage?.id else { return }
+                        switch kind {
+                        case .newFolder:
+                            manager.createFolder(device: device.id, storage: storage, parent: folder, name: name) { opError = $0 }
+                        case .rename(let e):
+                            manager.rename(device: device.id, entry: e, to: name) { opError = $0 }
+                        }
+                    }
+                }
+                .confirmationDialog(deleteTitle, isPresented: Binding(get: { !pendingDelete.isEmpty },
+                                                                      set: { if !$0 { pendingDelete = [] } })) {
+                    Button("Delete", role: .destructive) {
+                        manager.delete(device: device.id, entries: pendingDelete) { opError = $0 }
+                        pendingDelete = []
+                    }
+                } message: {
+                    Text("This deletes them from the device, including everything inside folders. It can't be undone.")
+                }
+                .alert(opError ?? "", isPresented: Binding(get: { opError != nil }, set: { if !$0 { opError = nil } })) {}
+
+                if let t = manager.transfer { TransferBar(status: t) }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+        }
+    }
+
+    /// Breadcrumb segment: amber ink like the website's links; the current folder is plain text.
+    private func crumb(_ title: String, current: Bool, action: @escaping () -> Void) -> some View {
+        Button(title, action: action)
+            .buttonStyle(.plain)
+            .font(Theme.sans(14, current ? .semibold : .regular))
+            .foregroundColor(current ? Theme.text : Theme.amberInk)
+            .lineLimit(1)
     }
 
     private var deleteTitle: String {
         pendingDelete.count == 1 ? "Delete “\(pendingDelete[0].name)”?" : "Delete \(pendingDelete.count) items?"
     }
 
-    fileprivate func contextMenu(for e: Entry) -> some View {
-        Group {
-            if e.isFolder { Button("Open") { open(e) } }
-            Button("Download…") { chooseDownload(targets(e)) }
-            Button("Rename…") { sheet = .rename(e) }.disabled(targets(e).count > 1)
+    fileprivate func contextMenu(for e: Entry) -> some View { menu(for: Set(targets(e).map(\.id))) }
+
+    /// Right-click menu for the clicked row, or the whole selection if the clicked row is part of it.
+    fileprivate func menu(for ids: Set<UInt32>) -> some View {
+        let items = entries.filter { ids.contains($0.id) }
+        return Group {
+            if items.count == 1, items[0].isFolder { Button("Open") { open(items[0]) } }
+            Button("Download…") { chooseDownload(items) }
+            Button("Rename…") { sheet = .rename(items[0]) }.disabled(items.count != 1)
             Divider()
-            Button("Delete…") { pendingDelete = targets(e) }
+            Button("Delete…") { pendingDelete = items }
         }
-        .disabled(busy)
+        .disabled(busy || items.isEmpty)
+    }
+
+    /// Double-click / Return on a single folder opens it.
+    fileprivate func primaryAction(_ ids: Set<UInt32>) {
+        if ids.count == 1, let e = entries.first(where: { ids.contains($0.id) }) { open(e) }
     }
 
     fileprivate func open(_ e: Entry) {
@@ -261,35 +402,98 @@ private struct TransferBar: View {
     let status: TransferStatus
 
     var body: some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .center, spacing: 12) {
             if status.finished {
                 let ok = status.errors.isEmpty && !status.cancelled
-                Image(systemName: ok ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                    .foregroundColor(ok ? .green : .orange)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(summary)
-                    ForEach(status.errors, id: \.self) { Text($0).font(.caption).foregroundColor(.secondary) }
+                LED(color: ok ? Theme.ok : status.cancelled ? Theme.muted : Theme.err)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(summary).font(Theme.sans(14, .medium))
+                    ForEach(status.errors, id: \.self) { Text($0).font(Theme.mono(11, .regular)).foregroundColor(Theme.muted) }
                 }
                 Spacer()
-                Button("Dismiss") { manager.transfer = nil }
+                Button("Dismiss") { manager.transfer = nil }.buttonStyle(.faceplate)
             } else {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(status.verb) \(status.index + 1) of \(status.count): \(status.name)")
-                        .lineLimit(1).truncationMode(.middle)
-                    ProgressView(value: status.fraction)
+                LED()
+                VStack(alignment: .leading, spacing: 10) {
+                    // this file
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 10) {
+                            EngravedLabel("\(status.verb) \(status.index + 1) of \(status.count)")
+                            Text(status.name).font(Theme.sans(13.5)).lineLimit(1).truncationMode(.middle)
+                            Spacer(minLength: 8)
+                            EngravedLabel(percent(status.fraction))
+                        }
+                        ProgressLine(value: status.fraction, label: "This file")
+                    }
+                    // the whole batch (a dropped folder), by bytes
+                    if status.count > 1 {
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 10) {
+                                EngravedLabel("Total")
+                                Text("\(bytes(copied)) of \(bytes(status.totalBytes))")
+                                    .font(Theme.mono(11.5, .regular)).foregroundColor(Theme.muted)
+                                Spacer(minLength: 8)
+                                EngravedLabel(percent(status.overall))
+                            }
+                            ProgressLine(value: status.overall, label: "Total", fill: Theme.text)
+                        }
+                    }
                 }
-                Button("Cancel") { manager.cancelTransfer() }
+                CancelX { manager.cancelTransfer() }
             }
         }
-        .padding(8)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color(nsColor: .controlBackgroundColor)))
+        .foregroundColor(Theme.text)
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Theme.panel))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.line))
     }
 
+    private var copied: UInt64 { UInt64(status.overall * Double(status.totalBytes)) }
+    private func percent(_ v: Double) -> String { "\(Int((v * 100).rounded(.down)))%" }
+    private func bytes(_ n: UInt64) -> String { ByteCountFormatter.string(fromByteCount: Int64(n), countStyle: .file) }
+
     private var summary: String {
-        if status.cancelled { return "Cancelled" }
+        if status.cancelled {
+            return status.errors.isEmpty ? "Cancelled. Nothing was kept." : "Cancelled, but some items couldn't be removed"
+        }
         if !status.errors.isEmpty { return "Finished with \(status.errors.count) problem\(status.errors.count == 1 ? "" : "s")" }
         let done = status.verb == "Uploading" ? "Uploaded" : "Downloaded"
         return "\(done) \(status.count) file\(status.count == 1 ? "" : "s")"
+    }
+}
+
+/// Finder-style round ✕ beside the progress bars; cancels the whole transfer.
+private struct CancelX: View {
+    let action: () -> Void
+    @State private var hover = false
+    var body: some View {
+        Button(action: action) {
+            Label("Cancel transfer", systemImage: "xmark.circle.fill").labelStyle(.iconOnly)
+                .font(.system(size: 16))
+                .foregroundColor(hover ? Theme.text : Theme.muted)
+                .frame(width: 24, height: 24)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hover = $0 }
+        .help("Cancel transfer")
+    }
+}
+
+/// Thin progress line: amber for the current file, bone/ink for the batch total.
+private struct ProgressLine: View {
+    let value: Double
+    let label: String
+    var fill = Theme.amber
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Capsule().fill(Theme.line)
+            Capsule().fill(fill).scaleEffect(x: max(0.001, min(1, value)), anchor: .leading)
+        }
+        .frame(height: 4)
+        .accessibilityElement()
+        .accessibilityLabel(label)
+        .accessibilityValue("\(Int(value * 100)) percent")
     }
 }
 
@@ -317,20 +521,30 @@ private struct NameSheet: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(original == nil ? "New Folder" : "Rename “\(original!)”").font(.headline)
-            TextField("Name", text: $name).onSubmit(submit)
-            if let problem { Text(problem).font(.caption).foregroundColor(.red) }
+        VStack(alignment: .leading, spacing: 14) {
+            EngravedLabel(original == nil ? "New folder" : "Rename")
+            Text(original.map { "“\($0)”" } ?? "Name the folder").font(Theme.serif(26)).lineLimit(1).truncationMode(.middle)
+            TextField("Name", text: $name)
+                .textFieldStyle(.plain)
+                .font(Theme.sans(15))
+                .padding(.horizontal, 10).frame(height: 32)
+                .background(RoundedRectangle(cornerRadius: 7).fill(Theme.panel2))
+                .overlay(RoundedRectangle(cornerRadius: 7).stroke(problem == nil ? Theme.line : Theme.err))
+                .onSubmit(submit)
+            if let problem { Text(problem).font(Theme.sans(13)).foregroundColor(Theme.err) }
             HStack {
                 Spacer()
-                Button("Cancel") { dismiss() }.keyboardShortcut(.cancelAction)
+                Button("Cancel") { dismiss() }.buttonStyle(.faceplate).keyboardShortcut(.cancelAction)
                 Button(original == nil ? "Create" : "Rename", action: submit)
+                    .buttonStyle(.faceplatePrimary)
                     .keyboardShortcut(.defaultAction)
                     .disabled(trimmed.isEmpty || problem != nil)
             }
         }
-        .padding()
-        .frame(width: 340)
+        .foregroundColor(Theme.text)
+        .padding(24)
+        .frame(width: 380)
+        .background(Theme.bg)
         .onAppear { name = original ?? "untitled folder" }
     }
 
@@ -341,13 +555,31 @@ private struct NameSheet: View {
     }
 }
 
+/// macOS 13+: the table's own row-level double-click and context menu. Nothing sits on the cells, so every
+/// click reaches the table and selects (focused, i.e. amber) reliably.
+private struct RowMenu: ViewModifier {
+    let browser: BrowserView
+    func body(content: Content) -> some View {
+        if #available(macOS 13, *) {
+            content.contextMenu(forSelectionType: UInt32.self) { browser.menu(for: $0) }
+                primaryAction: { browser.primaryAction($0) }
+        } else {
+            content
+        }
+    }
+}
+
 private extension View {
-    /// Double-click to open and a context menu, anywhere in the cell.
-    /// macOS 12 Table has no row-level primary action or context menu (those are macOS 13+).
-    func rowActions(_ e: DeviceManager.Entry, _ browser: BrowserView) -> some View {
-        frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .onTapGesture(count: 2) { browser.open(e) }
-            .contextMenu { browser.contextMenu(for: e) }
+    /// macOS 12 fallback: Table has no row-level primary action or context menu, so they go on each cell.
+    /// The double-click is *simultaneous* so the click still reaches the table and selects the row.
+    @ViewBuilder func rowActions(_ e: DeviceManager.Entry, _ browser: BrowserView) -> some View {
+        if #available(macOS 13, *) {
+            self
+        } else {
+            frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .simultaneousGesture(TapGesture(count: 2).onEnded { browser.open(e) })
+                .contextMenu { browser.contextMenu(for: e) }
+        }
     }
 }

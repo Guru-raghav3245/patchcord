@@ -1,3 +1,26 @@
+--- a/src/device-flags.h
++++ b/src/device-flags.h
+@@ -317,13 +317,18 @@
+  * These are auto-assigned to devices reporting
+  * "android.com" in their device extension descriptor.
+  */
++/*
++ * MTP Tool: no DEVICE_FLAG_FORCE_RESET_ON_CLOSE here. A USB reset on close makes
++ * many phones (e.g. Redmi A5) drop back to "No data transfer", so every quit
++ * would need File transfer re-selected on the phone, and some players (CT10)
++ * can't open a new session afterwards until replugged.
++ */
+ #define DEVICE_FLAGS_ANDROID_BUGS \
+   (DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | \
+    DEVICE_FLAG_BROKEN_SET_OBJECT_PROPLIST | \
+    DEVICE_FLAG_BROKEN_SEND_OBJECT_PROPLIST | \
+    DEVICE_FLAG_UNLOAD_DRIVER | \
+-   DEVICE_FLAG_LONG_TIMEOUT | \
+-   DEVICE_FLAG_FORCE_RESET_ON_CLOSE)
++   DEVICE_FLAG_LONG_TIMEOUT)
+ /**
+  * All these bug flags appear on a number of SonyEricsson
+  * devices including Android devices not using the stock
 --- a/src/music-players.h
 +++ b/src/music-players.h
 @@ -860,6 +860,10 @@

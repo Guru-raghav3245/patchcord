@@ -20,6 +20,8 @@ libmtp is modified. The changes are in libmtp-ct10.patch, which applies with
   - Two small memory leaks fixed in LIBMTP_Set_Object_Filename.
   - A failed open (e.g. the USB interface is claimed by another process) now
     closes the USB device handle instead of leaking it.
+  - Android devices are no longer USB-reset when a session closes (the reset
+    makes many phones drop out of File transfer mode).
 
 Build: MACOSX_DEPLOYMENT_TARGET=11.0 CFLAGS="-arch arm64 -O2" LDFLAGS="-arch arm64"
 ./configure --disable-static --disable-mtpz --with-udev=no (libmtp); libusb is

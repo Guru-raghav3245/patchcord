@@ -40,7 +40,8 @@ extension DeviceManager {
         return id
     }
 
-    private func deleteTree(_ h: Handle, _ e: Entry) -> String? {
+    /// mtp queue only. Also used to undo a cancelled upload.
+    func deleteTree(_ h: Handle, _ e: Entry) -> String? {
         if e.isFolder {
             guard let children = try? listFolder(h, storage: e.storage, folder: e.id) else {
                 return "Couldn't read the folder “\(e.name)”."

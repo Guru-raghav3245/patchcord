@@ -9,11 +9,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activo CT10. The spec is `Activo MTP Tool — v1 Spec.md`; `PLAN.md` has per-phase detail and measurements.
 
 - **Repo:** https://github.com/Guru-raghav3245/mtp-tool (private, branch `main`).
-- **Release:** 1.0.1 (2026-09-27: Redmi A5 / ptpcamerad fix). `site/downloads/` holds `MTPTool-1.0.1.dmg`, the two LGPL source archives, and `SHA256SUMS.txt`.
-- **Website:** https://mtptool.vercel.app — `site/` is a static page on Vercel (Hobby, project `mtptool`), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). `site/404.html` is Vercel's custom 404 (old DMG links land there, with a button to the current DMG). Don't add `headers` rules matching `*.dmg` in `vercel.json`: they also apply to missing paths, and Chrome then rejects the 404 with `ERR_INVALID_RESPONSE`. Vercel already serves `.dmg` as `application/x-apple-diskimage`, which browsers download. To release: bump `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` in `project.yml` and the first line of `scripts/dmg-readme.txt`, run `make-dmg.sh` (writes straight into `site/downloads/`, replacing the old DMG), update the version/size/filenames in `site/index.html` and the download link in `site/404.html` (Vercel's custom 404, which also catches links to old DMGs), then commit and push.
+- **Release:** 1.0.2 (2026-09-27: faceplate redesign of app + site, new icon, two progress bars + ✕ cancel, cancel undoes the batch, no USB reset on close for Android). `site/downloads/` holds `MTPTool-1.0.2.dmg` (1.4 MB with bundled fonts), the two LGPL source archives, and `SHA256SUMS.txt`.
+- **Website:** https://mtptool.vercel.app — `site/` is a static page on Vercel (`index.html`, `404.html`, shared `style.css`, self-hosted OFL fonts in `site/fonts/`, `screenshot.webp`; the nav glide is a small inline script) (Hobby, project `mtptool`), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). `site/404.html` is Vercel's custom 404 (old DMG links land there, with a button to the current DMG). Don't add `headers` rules matching `*.dmg` in `vercel.json`: they also apply to missing paths, and Chrome then rejects the 404 with `ERR_INVALID_RESPONSE`. Vercel already serves `.dmg` as `application/x-apple-diskimage`, which browsers download. To release: bump `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` in `project.yml` and the first line of `scripts/dmg-readme.txt`, run `make-dmg.sh` (writes straight into `site/downloads/`, replacing the old DMG), update the version/size/filenames in `site/index.html` (and retake `site/screenshot.webp` if the UI changed: `screencapture -W` after activating the app, since the terminal lacks Screen Recording) and the download link in `site/404.html` (Vercel's custom 404, which also catches links to old DMGs), then commit and push.
 - **Install flow:** verified with a real Safari download: warning → Privacy & Security → Open Anyway → launch. Later launches have no prompts.
 - **Untested:**
-  - Multi-device picker: both CT10 and Redmi A5 open together (2026-09-27); switching and unplugging one not yet checked
+  - Multi-device: CT10 + Redmi A5 open together and switching works (2026-09-27); unplugging one while both are open not yet checked
   - microSD / second storage (no card available)
   - Real DSD files
   - Mac sleep/wake with the device connected
@@ -57,10 +57,11 @@ There are no unit tests. The app has headless commands for testing against a rea
 
 ## CT10 / device gotchas
 
-- **`vendor/patches/libmtp-ct10.patch` is essential; don't drop it.** It fixes these:
+- **`vendor/patches/libmtp-ct10.patch` is essential; don't drop it.** It fixes these (files: `device-flags.h`, `music-players.h`, `libmtp.c`, `libusb1-glue.c`, `ptp.c`):
   - **Reset on close:** libmtp USB-resets Android devices on close by default, and the CT10 then times out on every later session until replugged. The patch adds a CT10 table entry without `FORCE_RESET_ON_CLOSE`, and stops libmtp re-ORing Android default flags onto entries that set their own.
   - **Upload cancel:** libmtp didn't wait for the device after a cancelled send, so Android's f_mtp swallowed the next command as object data (a 60 s stall). The patch waits for device-ready and sends a zero-length packet. Android deletes the partial object itself.
   - **Rename leaks:** two small leaks in `LIBMTP_Set_Object_Filename`.
+  - **No reset on close for Android:** `DEVICE_FLAGS_ANDROID_BUGS` no longer includes `FORCE_RESET_ON_CLOSE`. The reset made the Redmi A5 fall back to "No data transfer" (USB id `18d1:4ee7`) whenever a session closed (app quit, CLI exit), so File transfer had to be re-selected on the phone.
   - **Failed-open leak:** when `init_ptp_usb` failed after `libusb_open` (e.g. the claim was refused), the handle was never closed, so every Retry left the app holding the device.
 - **Busy device:** MacDroid and Android File Transfer take `UsbExclusiveOwner` of the device, and the claim then fails with -3. Check with `ioreg -p IOUSB -w0 -l | grep UsbExclusiveOwner`.
 - **ptpcamerad:** some phones (e.g. Redmi A5, Unisoc, `2717:ff48`) report their MTP interface as class 6 (Still Image), so macOS's `ptpcamerad` (behind Photos/Image Capture) claims the *interface* on plug-in. launchd relaunches it within a second, so `DeviceManager.open` SIGKILLs it and reopens as soon as the claim is released; once we hold the interface it can't take it back. Photos/Image Capture can't import from that phone until it's unplugged or the app quits. Check with `ioreg -p IOService -w0 -rc IOUSBHostInterface -l | grep UsbExclusiveOwner`. Such phones show libmtp's table name ("Xiaomi Mi-2s") until opened.
@@ -81,7 +82,9 @@ Swift + SwiftUI over libmtp/libusb through a bridging header (`App/Bridging-Head
 - `App/Transfers.swift`: download/upload batches, one at a time.
   - **Planning:** a step on the `mtp` queue expands folders into a flat file list, creating the folders locally or on the device, and skipping hidden files on upload. Files then copy one by one.
   - **Progress and cancel:** progress arrives through libmtp's C callback, and returning 1 from it cancels.
+  - **Two bars:** the current file, plus (for multi-file batches) the batch total by bytes: `TransferStatus.overall` = (finished files' bytes + current fraction × current size) / total. Sizes come from the planning step.
   - **Partial files:** downloads write `.name.mtpdownload` next to the destination and rename it after a size check. Failed uploads delete the partial object, and report it only if it still exists.
+  - **Cancel undoes the batch:** `runBatch`'s `undo` runs only on cancel. Downloads delete the top-level files/folders the batch wrote; uploads delete (via `deleteTree`) the top-level names the batch added. Names that already existed are refused at planning, so nothing pre-existing is touched. Verified on the CT10 with `--get/--put … --cancel-after`.
 - `App/FileOps.swift`: create folder, rename, and delete. Rename uses `LIBMTP_Set_Object_Filename`, which works for files and folders. Delete recurses depth-first, because not every device deletes non-empty folders. These run async on the `mtp` queue, with completion on main.
 - `App/CLI.swift`: headless commands. All use the first device's first storage.
   - `--probe [/folder]`
@@ -91,7 +94,9 @@ Swift + SwiftUI over libmtp/libusb through a bridging header (`App/Bridging-Head
   - `--mkdir`
   - `--rename /dev/path newname`
   - `--rm`
-- `App/ContentView.swift`: device picker (shown only for >1 device), error + Retry, `BrowserView`, `TransferBar`, and `NameSheet`.
+- `App/ContentView.swift`: device switcher (the serif device name becomes a menu when >1 device is connected), error + Retry, `BrowserView`, `TransferBar` (two bars + Finder-style ✕), and `NameSheet`.
+  - **Look:** DESIGN.md's faceplate; tokens, fonts, `LED`, `EngravedLabel` and `.faceplate` button styles are in `App/Theme.swift`. Window uses `.hiddenTitleBar`.
+  - **UI snapshot (Debug only):** `MTPTOOL_SNAPSHOT=/tmp/ui.png MTPTOOL_APPEARANCE=dark MTPTOOL_SNAPSHOT_DELAY=6 <app>/Contents/MacOS/MTPTool` saves the window's own rendering, so no Screen Recording permission is needed. Add `MTPTOOL_FAKE_TRANSFER=1` to show a mid-upload transfer bar (file 3 of 12, 24% total).
   - **`BrowserView`:** storage picker, breadcrumb, sortable `Table`, drop-in to upload, and drag-out via a temp download. ⌘ held at drag start makes it a move.
   - **macOS 12 workaround:** double-click and the context menu are per-cell (`rowActions`), because row-level actions need macOS 13.
 
@@ -112,3 +117,9 @@ A free, native macOS app (Apple Silicon only, macOS 12+) for transferring files 
 - App Store (sandboxing)
 - Localization
 - Intel support (open question)
+
+## Design System
+Always read DESIGN.md before making any visual or UI decisions.
+All font choices, colors, spacing, and aesthetic direction are defined there.
+Do not deviate without explicit user approval.
+In QA mode, flag any code that doesn't match DESIGN.md.

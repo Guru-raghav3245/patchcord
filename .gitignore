@@ -4,3 +4,4 @@ vendor/prefix/
 MTPTool.xcodeproj/
 .DS_Store
 .vercel/
+.gstack/
