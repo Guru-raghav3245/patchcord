@@ -56,6 +56,7 @@
 - **Border radius:** sm 5 px (code) · md 8 px (buttons) · lg 12–14 px (panels, window frames). No pill buttons.
 - **Primary CTA:** solid `--text` background with `--bg` text and a lit amber LED dot; on hover the fill turns amber. One primary CTA per screen.
 - **App window on the site:** drawn in HTML/CSS (`.appwin` in `site/index.html` + `site/style.css`), not a screenshot (user request, 2026-09-27): sharp at any zoom, same fonts/tokens as the page, and it can show the transfer bars. Always the app's dark theme, 760px wide at real size, running just off the right edge; `zoom: .6` below 860px. One `role="img"` label describes it; its innards are `aria-hidden`. Keep it in sync with the real app UI.
+- **No real names on the site:** no real device, folder or song names anywhere on the website (user request, 2026-09-27). The app window uses generic ones: "Music Player", "Internal storage › Music › Album", "Track 01.flac"….
 
 ## Icon
 - Graphite squircle with a subtle brushed vertical grain and a darker rim; one bone-white (`#E8E6E1`) cable that runs right into an arrow, loops back, and ends in a USB-C plug; amber indicator LED top-right with a soft glow.
