@@ -13,7 +13,7 @@ enum Theme {
     static let muted = dynamic(0x8C8A85, 0x66645F)
     static let faint = dynamic(0x5C5B58, 0x9C998F)
     static let amber = Color(hex: 0xF2A33A)                  // the indicator light, fills
-    static let amberInk = dynamic(0xF2A33A, 0xA8620A)       // amber text / links
+    static let amberInk = dynamic(0xF2A33A, 0x9E5C09)       // amber text / links (4.7:1 on paper)
     static let ok = dynamic(0x5FB37A, 0x2F8A4E)
     static let err = dynamic(0xE0604F, 0xC2412F)
 

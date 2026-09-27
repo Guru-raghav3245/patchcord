@@ -5,7 +5,7 @@
   * "android.com" in their device extension descriptor.
   */
 +/*
-+ * MTP Tool: no DEVICE_FLAG_FORCE_RESET_ON_CLOSE here. A USB reset on close makes
++ * Patchcord: no DEVICE_FLAG_FORCE_RESET_ON_CLOSE here. A USB reset on close makes
 + * many phones (e.g. Redmi A5) drop back to "No data transfer", so every quit
 + * would need File transfer re-selected on the phone, and some players (CT10)
 + * can't open a new session afterwards until replugged.
