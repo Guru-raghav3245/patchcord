@@ -1,6 +1,7 @@
 import Foundation
 
-/// Headless commands for testing against a real device. All use the first device's first storage.
+/// Headless commands for testing against a real device. All use the first device's first storage,
+/// or the first device whose name contains --device <name>.
 ///   --probe [/folder]                 list devices, optionally list a folder (with timing)
 ///   --get /device/path <dir>          download a file or folder
 ///   --put <local path> /device/folder upload a file or folder ("/" for the root)
@@ -21,7 +22,8 @@ enum CLI {
         let found = m.scanNow()
         print(found.isEmpty ? "No MTP device attached." : found.map(\.summary).joined(separator: "\n"))
         defer { m.closeAll(); exit(0) }
-        guard let d = found.first, let s = d.storages.first else { return }
+        let want = arg("--device")
+        guard let d = found.first(where: { want == nil || $0.name.contains(want!) }), let s = d.storages.first else { return }
 
         do {
             if let path = arg("--probe") {

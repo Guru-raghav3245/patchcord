@@ -12,16 +12,20 @@ libusb is unmodified.
 
 libmtp is modified. The changes are in libmtp-ct10.patch, which applies with
 `patch -p1` to the libmtp-1.1.23 release tarball:
-  - Activo CT10 device entry that skips the USB reset on close
-    (the reset leaves the CT10 unable to open a new session until replugged).
-  - Android default bug flags are only applied to devices without their own entry.
-  - Cancelling an upload now waits for the device and completes the pending
-    bulk read, instead of stalling the next command for ~60 s.
+  - Activo CT10 device entry with a new DEVICE_FLAG_NO_USB_RESET (a USB reset
+    leaves the CT10 unable to open a new session until replugged).
+  - Cancelling an upload now waits 1 s for the device to process the cancel
+    and completes the pending bulk read, instead of stalling the next command
+    for ~60 s.
+  - Cancelling a download no longer polls GET_DEVICE_STATUS (some phones never
+    answer it and stop responding) and sends the cancel request only once.
   - Two small memory leaks fixed in LIBMTP_Set_Object_Filename.
   - A failed open (e.g. the USB interface is claimed by another process) now
     closes the USB device handle instead of leaking it.
   - Android devices are no longer USB-reset when a session closes (the reset
     makes many phones drop out of File transfer mode).
+  - When opening a session fails, the retry skips its USB reset for devices
+    flagged DEVICE_FLAG_NO_USB_RESET.
 
 Build: MACOSX_DEPLOYMENT_TARGET=11.0 CFLAGS="-arch arm64 -O2" LDFLAGS="-arch arm64"
 ./configure --disable-static --disable-mtpz --with-udev=no (libmtp); libusb is

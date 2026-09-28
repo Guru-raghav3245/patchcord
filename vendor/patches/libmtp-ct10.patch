@@ -1,6 +1,19 @@
 --- a/src/device-flags.h
 +++ b/src/device-flags.h
-@@ -317,13 +317,18 @@
+@@ -275,6 +275,12 @@
+  */
+ #define DEVICE_FLAG_FORCE_RESET_ON_CLOSE	0x10000000
+ /**
++ * Patchcord: never USB-reset this device, not even to recover a failed
++ * OpenSession. The Activo CT10 can't open a session after any reset until
++ * it is replugged, while phones (e.g. Redmi A5) recover through the reset.
++ */
++#define DEVICE_FLAG_NO_USB_RESET		0x00001000
++/**
+  * On 2016 EOS cameras, do not close the session on exiting,
+  * as the device will only report ptp errors afterwards.
+  */
+@@ -317,13 +323,18 @@
   * These are auto-assigned to devices reporting
   * "android.com" in their device extension descriptor.
   */
@@ -27,30 +40,16 @@
    // In USB Mass Storage mode it is 0x4102/0x1047
    // Seems to use the new shaped-up firmware.
    { "iRiver", 0x4102, "Spinn", 0x1147, DEVICE_FLAG_NONE },
-+  // Activo CT10 (Android DAP, iriver VID). USB reset on close leaves it
-+  // unable to open a new session until replugged, so skip the reset.
++  // Activo CT10 (Android DAP, iriver VID). A USB reset leaves it unable to
++  // open a new session until replugged.
 +  { "Activo", 0x4102, "CT10", 0x1182,
-+    DEVICE_FLAGS_ANDROID_BUGS & ~DEVICE_FLAG_FORCE_RESET_ON_CLOSE },
++    DEVICE_FLAGS_ANDROID_BUGS | DEVICE_FLAG_NO_USB_RESET },
    // Reported by Tony Janssen <tonyjanssen@users.sourceforge.net>
    { "iRiver", 0x4102, "E50", 0x1151,
      DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | DEVICE_FLAG_NO_ZERO_READS |
 --- a/src/libmtp.c
 +++ b/src/libmtp.c
-@@ -2060,9 +2060,12 @@
-       ptp_usb->rawdevice.device_entry.device_flags |= DEVICE_FLAGS_ARICENT_BUGS;
-       LIBMTP_INFO("Aricent MTP stack device detected, assigning default bug flags\n");
-     }
--    else if (is_android) {
-+    else if (is_android &&
-+             ptp_usb->rawdevice.device_entry.device_flags == DEVICE_FLAG_NONE) {
-       /*
-        * If bugs are fixed in later versions, test on tmpext->major, tmpext->minor
-+       * Only for devices without explicit flags, so entries like the Activo
-+       * CT10 can opt out of individual Android flags.
-        */
-       ptp_usb->rawdevice.device_entry.device_flags |= DEVICE_FLAGS_ANDROID_BUGS;
-       LIBMTP_INFO("Android device detected, assigning default bug flags\n");
-@@ -7082,6 +7085,7 @@
+@@ -7082,6 +7082,7 @@
      }
    } else if (ptp_operation_issupported(params, PTP_OC_MTP_SetObjectPropValue)) {
      ret = set_object_string(device, object_id, PTP_OPC_ObjectFileName, newname);
@@ -58,7 +57,7 @@
      if (ret != 0) {
        add_error_to_errorstack(device, LIBMTP_ERROR_GENERAL, "set_object_filename(): "
                " could not set object filename.");
-@@ -7294,7 +7298,7 @@
+@@ -7294,7 +7295,7 @@
  
    ret = set_object_filename(device, object_id, map_libmtp_type_to_ptp_type(file->filetype), (const char **) &newname);
  
@@ -69,32 +68,55 @@
  }
 --- a/src/libusb1-glue.c
 +++ b/src/libusb1-glue.c
-@@ -1369,6 +1369,24 @@
+@@ -1022,13 +1022,12 @@
+   set_usb_device_timeout(ptp_usb, 300);
+ 
+   params->cancelreq_func(params, transactionid);
+-
+ 
+-  ret = params->devstatreq_func(params);
+-  while (ret == PTP_RC_DeviceBusy) {
+-    usleep(200000);
+-    ret = params->devstatreq_func(params);
+-  }
++  /*
++   * Don't poll GET_DEVICE_STATUS here: some phones (Redmi A5) never answer
++   * it and then stop responding altogether. Draining the data below until
++   * the short timeout is enough.
++   */
+ 
+   while (1) {
+     ret = ptp_read_func(ptp_usb->inep_maxpacket,
+@@ -1368,6 +1367,28 @@
+ 			break;
  		}
  		bytes_left_to_transfer -= written;
- 	}
++	}
 +	if (ret == PTP_ERROR_CANCEL) {
 +		/*
-+		 * Cancel here rather than in ptp_transaction_new() so we can wait
-+		 * for the device to settle. Without this the next command is taken
-+		 * as object data and gets no response (~60s stall).
++		 * Cancel here rather than in ptp_transaction_new() so we can let the
++		 * device settle. Without this the next command is taken as object
++		 * data and gets no response (~60s stall).
 +		 */
 +		PTP_USB *ptp_usb = (PTP_USB *) params->data;
 +		int zlp;
 +		params->cancelreq_func(params, ptp->Transaction_ID);
-+		while (params->devstatreq_func(params) == PTP_RC_DeviceBusy)
-+			usleep(200000);
 +		/*
-+		 * Android's f_mtp still has a bulk-out read queued for the object
-+		 * data and only notices the cancel once it completes, so it would
-+		 * swallow our next command. A zero-length packet completes it.
++		 * Android handles the cancel asynchronously and treats anything
++		 * that arrives before then as object data. Don't poll
++		 * GET_DEVICE_STATUS instead: some phones (Redmi A5) never answer it
++		 * here and then stop responding altogether.
++		 */
++		usleep(1000000);
++		/*
++		 * Android's f_mtp can still have a bulk-out read queued for the
++		 * object data; a zero-length packet completes it.
 +		 */
 +		libusb_bulk_transfer(ptp_usb->handle, ptp_usb->outep, NULL, 0, &zlp, 1000);
-+	}
+ 	}
  	if (ret != PTP_RC_OK && ret != PTP_ERROR_CANCEL)
  		ret = PTP_ERROR_IO;
- 	return ret;
-@@ -2294,6 +2312,9 @@
+@@ -2294,6 +2315,9 @@
  
    /* Attempt to initialize this device */
    if (init_ptp_usb(params, ptp_usb, ldevice) < 0) {
@@ -104,14 +126,47 @@
      free (ptp_usb);
      LIBMTP_ERROR("LIBMTP PANIC: Unable to initialize device\n");
      libusb_free_device_list (devs, 0);
+@@ -2308,8 +2332,10 @@
+    */
+   if ((ret = ptp_opensession(params, 1)) == PTP_ERROR_IO) {
+     LIBMTP_ERROR("PTP_ERROR_IO: failed to open session, trying again after resetting USB interface\n");
+-    LIBMTP_ERROR("LIBMTP libusb: Attempt to reset device\n");
+-    libusb_reset_device (ptp_usb->handle);
++    if (!FLAG_NO_USB_RESET(ptp_usb)) {
++      LIBMTP_ERROR("LIBMTP libusb: Attempt to reset device\n");
++      libusb_reset_device (ptp_usb->handle);
++    }
+     close_usb(ptp_usb);
+ 
+     if(init_ptp_usb(params, ptp_usb, ldevice) <0) {
+--- a/src/libusb-glue.h
++++ b/src/libusb-glue.h
+@@ -168,6 +168,8 @@
+   ((a)->rawdevice.device_entry.device_flags & DEVICE_FLAG_LONG_TIMEOUT)
+ #define FLAG_FORCE_RESET_ON_CLOSE(a) \
+   ((a)->rawdevice.device_entry.device_flags & DEVICE_FLAG_FORCE_RESET_ON_CLOSE)
++#define FLAG_NO_USB_RESET(a) \
++  ((a)->rawdevice.device_entry.device_flags & DEVICE_FLAG_NO_USB_RESET)
+ 
+ /* connect_first_device return codes */
+ #define PTP_CD_RC_CONNECTED	0
 --- a/src/ptp.c
 +++ b/src/ptp.c
-@@ -174,9 +174,8 @@
+@@ -174,17 +174,15 @@
  	switch (flags&PTP_DP_DATA_MASK) {
  	case PTP_DP_SENDDATA:
  		{
 +			/* On cancel, senddata_func has already sent the cancel request. */
  			uint16_t ret = params->senddata_func(params, ptp, sendlen, handler);
+-			if (ret == PTP_ERROR_CANCEL)
+-				CHECK_PTP_RC(params->cancelreq_func(params, params->transaction_id-1));
+ 			CHECK_PTP_RC(ret);
+ 		}
+ 		break;
+ 	case PTP_DP_GETDATA:
+ 		{
++			/* On cancel, getdata_func has already sent the cancel request. */
+ 			uint16_t ret = params->getdata_func(params, ptp, handler);
 -			if (ret == PTP_ERROR_CANCEL)
 -				CHECK_PTP_RC(params->cancelreq_func(params, params->transaction_id-1));
  			CHECK_PTP_RC(ret);
