@@ -1,4 +1,4 @@
-Patchcord 1.0.4
+Patchcord 1.0.5
 Copy files between your Mac and Android phones and digital audio players over USB.
 Needs a Mac with Apple silicon (M1 or later) and macOS 12 or later.
 

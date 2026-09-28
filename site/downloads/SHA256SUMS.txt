@@ -1,3 +1,3 @@
-f6d9010fe254915d792e5ab419c7d7e1525279fa89bc6be0eaa8553a96c0cec1  Patchcord-1.0.4.dmg
+ce43ad6a7042cccb55e7ce5ea8e8edc06baebec100a4f99ddca696ddce3f7e56  Patchcord-1.0.5.dmg
 fea36f34f9156400209595e300840767ab1a385ede1dc7ee893015aea9c6dbaf  libusb-1.0.30.tar.bz2
-ca3c0f28a73e12ee348f5575639a223e9445e44fda1260576b8bf964ae1f6197  libmtp-1.1.23-patchcord.tar.gz
+1e5f7955709e0b9c721bf6d9a2aca7add9416743cb411ebcabe3ea05d4527ddb  libmtp-1.1.23-patchcord.tar.gz
