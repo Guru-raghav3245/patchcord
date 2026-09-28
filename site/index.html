@@ -92,6 +92,36 @@
     <p class="note">The warning appears because the app isn't signed with a paid Apple Developer ID. Quit Android File Transfer or MacDroid first; they lock the device while running.</p>
   </section>
 
+  <section class="wrap sheet" id="android" tabindex="-1" aria-labelledby="android-h">
+    <h2 id="android-h" class="serif">Older Android devices</h2>
+    <article class="card" aria-labelledby="card-h">
+      <div class="label">Field note · Android 7.1 and earlier</div>
+      <h3 id="card-h">Why an older player can look connected but stop answering</h3>
+      <p class="lead">A music player on Android 7.1 or earlier can stay listed as connected after a Mac app is done with it, yet time out on every request until you unplug it. The cause is a USB reset that the device's Android version can't recover from. Patchcord never sends that reset.</p>
+      <div class="card-cols">
+        <div>
+          <h4 class="label">The problem</h4>
+          <ol class="steps">
+            <li><b>The reset.</b> libmtp, the open-source MTP library behind many Mac and Linux file-transfer tools, has reset the USB connection by default whenever it closes a session with an Android device since 2014.</li>
+            <li><b>The reset ends the device's MTP server.</b> This happens on every Android version. Android 8 and later notice and start a new server within about half a second.</li>
+            <li><b>Android 7.1 and earlier miss the reset.</b> The device is back on the bus in about 50&nbsp;ms, and these versions ignore any disconnect shorter than one second, so the framework never learns anything happened.</li>
+            <li><b>They also can't tell the server is gone.</b> The MTP service starts a server only if it doesn't have one, and it never lets go of the stopped one. Nothing reads commands again until a real unplug. Android fixed this in 8.0.</li>
+          </ol>
+        </div>
+        <div>
+          <h4 class="label">How Patchcord fixes it</h4>
+          <ol class="steps">
+            <li><b>No reset on close.</b> Patchcord ships a patched libmtp that never resets an Android device when a session ends.</li>
+            <li><b>Sessions stay open.</b> Each device keeps a single session from plug-in until you unplug it or quit, so there's nothing to close in between.</li>
+            <li><b>No reset on failure, for players known to get stuck.</b> When a session fails to open, libmtp resets the device and tries again. That reset rescues newer phones, so Patchcord keeps it for them and skips it only for players known to get stuck.</li>
+            <li><b>Tested on real hardware.</b> Measured on an Android 5 music player and an Android 15 phone. <a href="#source">The patch</a> is in the libmtp source download.</li>
+          </ol>
+        </div>
+      </div>
+      <p class="card-foot">Already stuck from another app? Unplug the player for a couple of seconds and plug it back in.</p>
+    </article>
+  </section>
+
   <section class="wrap sheet" id="source" tabindex="-1" aria-labelledby="source-h">
     <h2 id="source-h" class="serif">Verify &amp; source</h2>
     <ul class="rows">
