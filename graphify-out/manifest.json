@@ -1,0 +1,470 @@
+{
+  ".agents/skills/swiftui-pro/.claude-plugin/plugin.json": {
+    "mtime": 1790503470.52231,
+    "seen": 1790621525.6410072,
+    "ast_hash": "a1f212c6c6e22c892efcd77218e08037",
+    "semantic_hash": "a1f212c6c6e22c892efcd77218e08037"
+  },
+  "App/Assets.xcassets/AccentColor.colorset/Contents.json": {
+    "mtime": 1790528434.4080355,
+    "seen": 1790621525.6410089,
+    "ast_hash": "d29ef8a9c16bd892f17694b12b6ca38b",
+    "semantic_hash": "d29ef8a9c16bd892f17694b12b6ca38b"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/Contents.json": {
+    "mtime": 1790528400.7771487,
+    "seen": 1790621525.6410098,
+    "ast_hash": "f0f092decbf5d49b744602adda30d8af",
+    "semantic_hash": "f0f092decbf5d49b744602adda30d8af"
+  },
+  "App/Assets.xcassets/Contents.json": {
+    "mtime": 1790496363.3239653,
+    "seen": 1790621525.6410098,
+    "ast_hash": "6f266f38436c1b8465f1c0b241ffd07e",
+    "semantic_hash": "6f266f38436c1b8465f1c0b241ffd07e"
+  },
+  "App/Bridging-Header.h": {
+    "mtime": 1790433738.5143096,
+    "seen": 1790621525.6410098,
+    "ast_hash": "8b0c55f752c3fa2f98530c819da3028f",
+    "semantic_hash": "8b0c55f752c3fa2f98530c819da3028f"
+  },
+  "App/CLI.swift": {
+    "mtime": 1790620451.630455,
+    "seen": 1790621525.641011,
+    "ast_hash": "38ca51bda1616159f5ad68affeb5a2bb",
+    "semantic_hash": "38ca51bda1616159f5ad68affeb5a2bb"
+  },
+  "App/ContentView.swift": {
+    "mtime": 1790620600.1488938,
+    "seen": 1790621525.641011,
+    "ast_hash": "2cad13983f836923d25346d1467f4f1b",
+    "semantic_hash": "2cad13983f836923d25346d1467f4f1b"
+  },
+  "App/DeviceManager.swift": {
+    "mtime": 1790620600.1486914,
+    "seen": 1790621525.641011,
+    "ast_hash": "a49236cf7c8547240309b0ffb75af37c",
+    "semantic_hash": "a49236cf7c8547240309b0ffb75af37c"
+  },
+  "App/FileOps.swift": {
+    "mtime": 1790530669.9127808,
+    "seen": 1790621525.641012,
+    "ast_hash": "c9c0f5e855e7eb3244bd8e73285d935f",
+    "semantic_hash": "c9c0f5e855e7eb3244bd8e73285d935f"
+  },
+  "App/PatchcordApp.swift": {
+    "mtime": 1790534301.335188,
+    "seen": 1790621525.641012,
+    "ast_hash": "9c34ee7700685261a616343adadec360",
+    "semantic_hash": "9c34ee7700685261a616343adadec360"
+  },
+  "App/Theme.swift": {
+    "mtime": 1790532955.2399778,
+    "seen": 1790621525.641012,
+    "ast_hash": "525e2ce62a579159571dc845c3b24246",
+    "semantic_hash": "525e2ce62a579159571dc845c3b24246"
+  },
+  "App/Transfers.swift": {
+    "mtime": 1790530669.9126287,
+    "seen": 1790621525.641013,
+    "ast_hash": "6e4172925ebb5ee509e150ce772a7a87",
+    "semantic_hash": "6e4172925ebb5ee509e150ce772a7a87"
+  },
+  "scripts/build-libs.sh": {
+    "mtime": 1790447718.6335819,
+    "seen": 1790621525.641013,
+    "ast_hash": "a45e794a50399f2273a3e264ac11295f",
+    "semantic_hash": "a45e794a50399f2273a3e264ac11295f"
+  },
+  "scripts/bundle-libs.sh": {
+    "mtime": 1790445808.251401,
+    "seen": 1790621525.641013,
+    "ast_hash": "beccacca6fa3ce1a3fe08a6eb5545664",
+    "semantic_hash": "beccacca6fa3ce1a3fe08a6eb5545664"
+  },
+  "scripts/make-dmg.sh": {
+    "mtime": 1790534301.3354397,
+    "seen": 1790621525.641013,
+    "ast_hash": "a7a9a953cd85e3497b437237e9d5f13c",
+    "semantic_hash": "a7a9a953cd85e3497b437237e9d5f13c"
+  },
+  "scripts/make-icon.py": {
+    "mtime": 1790528400.2324376,
+    "seen": 1790621525.641014,
+    "ast_hash": "cece3f246e8ce387fb45a58eed858340",
+    "semantic_hash": "cece3f246e8ce387fb45a58eed858340"
+  },
+  "scripts/reopen-test.c": {
+    "mtime": 1790435177.3961694,
+    "seen": 1790621525.641014,
+    "ast_hash": "e09f1bbaa587d8951dff300b27f3b41a",
+    "semantic_hash": "e09f1bbaa587d8951dff300b27f3b41a"
+  },
+  "skills-lock.json": {
+    "mtime": 1790503470.5314448,
+    "seen": 1790621525.641014,
+    "ast_hash": "819f148bc2c983bba698dd96892b4873",
+    "semantic_hash": "819f148bc2c983bba698dd96892b4873"
+  },
+  "vercel.json": {
+    "mtime": 1790526604.6697116,
+    "seen": 1790621525.641015,
+    "ast_hash": "080ddc7934c5322f2662b46cc8853269",
+    "semantic_hash": "080ddc7934c5322f2662b46cc8853269"
+  },
+  ".agents/skills/swiftui-pro/SKILL.md": {
+    "mtime": 1790503470.5220263,
+    "seen": 1790621525.641015,
+    "ast_hash": "d462637f6079fde2e36b46be3f98196c",
+    "semantic_hash": "d462637f6079fde2e36b46be3f98196c"
+  },
+  ".agents/skills/swiftui-pro/agents/openai.yaml": {
+    "mtime": 1790503470.5220947,
+    "seen": 1790621525.641015,
+    "ast_hash": "c1ee5e15e203f52819b24926dbdfa6da",
+    "semantic_hash": "c1ee5e15e203f52819b24926dbdfa6da"
+  },
+  ".agents/skills/swiftui-pro/references/accessibility.md": {
+    "mtime": 1790503470.5222838,
+    "seen": 1790621525.641015,
+    "ast_hash": "5508456c7e39f5f93b2b9866832ae2b7",
+    "semantic_hash": "5508456c7e39f5f93b2b9866832ae2b7"
+  },
+  ".agents/skills/swiftui-pro/references/api.md": {
+    "mtime": 1790503470.5222962,
+    "seen": 1790621525.641016,
+    "ast_hash": "bcb9c59b6cfd7fe64f2282ebcdfccd52",
+    "semantic_hash": "bcb9c59b6cfd7fe64f2282ebcdfccd52"
+  },
+  ".agents/skills/swiftui-pro/references/data.md": {
+    "mtime": 1790503470.52274,
+    "seen": 1790621525.641016,
+    "ast_hash": "26a1f28c5f3b88ecbc7266f243255c57",
+    "semantic_hash": "26a1f28c5f3b88ecbc7266f243255c57"
+  },
+  ".agents/skills/swiftui-pro/references/design.md": {
+    "mtime": 1790503470.5227396,
+    "seen": 1790621525.641016,
+    "ast_hash": "d53f7e97b9d34a82ccffd4f23317f10a",
+    "semantic_hash": "d53f7e97b9d34a82ccffd4f23317f10a"
+  },
+  ".agents/skills/swiftui-pro/references/hygiene.md": {
+    "mtime": 1790503470.522534,
+    "seen": 1790621525.6410172,
+    "ast_hash": "f058ca08b10896ff9c2e1c8c0ae90bc2",
+    "semantic_hash": "f058ca08b10896ff9c2e1c8c0ae90bc2"
+  },
+  ".agents/skills/swiftui-pro/references/navigation.md": {
+    "mtime": 1790503470.5224626,
+    "seen": 1790621525.6410172,
+    "ast_hash": "1cfcd84162049a0806f8193fd375be58",
+    "semantic_hash": "1cfcd84162049a0806f8193fd375be58"
+  },
+  ".agents/skills/swiftui-pro/references/performance.md": {
+    "mtime": 1790503470.522475,
+    "seen": 1790621525.6410172,
+    "ast_hash": "f526c660b50a760bd716b350b59fe2b3",
+    "semantic_hash": "f526c660b50a760bd716b350b59fe2b3"
+  },
+  ".agents/skills/swiftui-pro/references/swift.md": {
+    "mtime": 1790503470.5227394,
+    "seen": 1790621525.6410172,
+    "ast_hash": "0557f9b1a148c860bec82eb3a0887fb5",
+    "semantic_hash": "0557f9b1a148c860bec82eb3a0887fb5"
+  },
+  ".agents/skills/swiftui-pro/references/views.md": {
+    "mtime": 1790503470.522526,
+    "seen": 1790621525.6410182,
+    "ast_hash": "a3e70a0c7d5c11dd46114c86ef2cad8e",
+    "semantic_hash": "a3e70a0c7d5c11dd46114c86ef2cad8e"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/SKILL.md": {
+    "mtime": 1790503470.5230536,
+    "seen": 1790621525.6410182,
+    "ast_hash": "a0c61ba8a418c6448eb45d925af9af18",
+    "semantic_hash": "a0c61ba8a418c6448eb45d925af9af18"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/accessibility.md": {
+    "mtime": 1790503470.5241196,
+    "seen": 1790621525.6410182,
+    "ast_hash": "5508456c7e39f5f93b2b9866832ae2b7",
+    "semantic_hash": "5508456c7e39f5f93b2b9866832ae2b7"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/api.md": {
+    "mtime": 1790503470.523566,
+    "seen": 1790621525.6410182,
+    "ast_hash": "bcb9c59b6cfd7fe64f2282ebcdfccd52",
+    "semantic_hash": "bcb9c59b6cfd7fe64f2282ebcdfccd52"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/data.md": {
+    "mtime": 1790503470.5239444,
+    "seen": 1790621525.6410189,
+    "ast_hash": "26a1f28c5f3b88ecbc7266f243255c57",
+    "semantic_hash": "26a1f28c5f3b88ecbc7266f243255c57"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/design.md": {
+    "mtime": 1790503470.5245924,
+    "seen": 1790621525.6410189,
+    "ast_hash": "d53f7e97b9d34a82ccffd4f23317f10a",
+    "semantic_hash": "d53f7e97b9d34a82ccffd4f23317f10a"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/hygiene.md": {
+    "mtime": 1790503470.5233881,
+    "seen": 1790621525.6410189,
+    "ast_hash": "f058ca08b10896ff9c2e1c8c0ae90bc2",
+    "semantic_hash": "f058ca08b10896ff9c2e1c8c0ae90bc2"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/navigation.md": {
+    "mtime": 1790503470.5242832,
+    "seen": 1790621525.6410198,
+    "ast_hash": "1cfcd84162049a0806f8193fd375be58",
+    "semantic_hash": "1cfcd84162049a0806f8193fd375be58"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/performance.md": {
+    "mtime": 1790503470.5244386,
+    "seen": 1790621525.6410198,
+    "ast_hash": "f526c660b50a760bd716b350b59fe2b3",
+    "semantic_hash": "f526c660b50a760bd716b350b59fe2b3"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/swift.md": {
+    "mtime": 1790503470.5232072,
+    "seen": 1790621525.6410198,
+    "ast_hash": "0557f9b1a148c860bec82eb3a0887fb5",
+    "semantic_hash": "0557f9b1a148c860bec82eb3a0887fb5"
+  },
+  ".agents/skills/swiftui-pro/skills/swiftui-pro/references/views.md": {
+    "mtime": 1790503470.5237653,
+    "seen": 1790621525.6410198,
+    "ast_hash": "a3e70a0c7d5c11dd46114c86ef2cad8e",
+    "semantic_hash": "a3e70a0c7d5c11dd46114c86ef2cad8e"
+  },
+  "App/Credits.html": {
+    "mtime": 1790532955.2398837,
+    "seen": 1790621525.641021,
+    "ast_hash": "3008d898e9bcc6710e90fbd2cb35cc9e",
+    "semantic_hash": "3008d898e9bcc6710e90fbd2cb35cc9e"
+  },
+  "App/Fonts/OFL-geistmono.txt": {
+    "mtime": 1790529375.2530243,
+    "seen": 1790621525.641021,
+    "ast_hash": "fe4cc681382eff30e91c042d87f245aa",
+    "semantic_hash": "fe4cc681382eff30e91c042d87f245aa"
+  },
+  "App/Fonts/OFL-instrumentsans.txt": {
+    "mtime": 1790529375.253504,
+    "seen": 1790621525.641021,
+    "ast_hash": "07770b59315b8ff37b0d85f75de3925f",
+    "semantic_hash": "07770b59315b8ff37b0d85f75de3925f"
+  },
+  "App/Fonts/OFL-instrumentserif.txt": {
+    "mtime": 1790529375.2539055,
+    "seen": 1790621525.641022,
+    "ast_hash": "768c3f0d6166414610edb8aab3eebfb3",
+    "semantic_hash": "768c3f0d6166414610edb8aab3eebfb3"
+  },
+  "CLAUDE.md": {
+    "mtime": 1790620969.1069908,
+    "seen": 1790621525.641022,
+    "ast_hash": "9092155a30bb717b461a962dfdf86f01",
+    "semantic_hash": "9092155a30bb717b461a962dfdf86f01"
+  },
+  "DESIGN.md": {
+    "mtime": 1790534301.3361788,
+    "seen": 1790621525.641022,
+    "ast_hash": "a543d8d86848c4594679918d9054c623",
+    "semantic_hash": "a543d8d86848c4594679918d9054c623"
+  },
+  "PLAN.md": {
+    "mtime": 1790534301.3359241,
+    "seen": 1790621525.641023,
+    "ast_hash": "23b4df2c1af686f9770dfcf6385a249a",
+    "semantic_hash": "23b4df2c1af686f9770dfcf6385a249a"
+  },
+  "Patchcord \u2014 v1 Spec.md": {
+    "mtime": 1790534301.3357625,
+    "seen": 1790621525.641023,
+    "ast_hash": "f440a685397526ec026d449ed0018f86",
+    "semantic_hash": "f440a685397526ec026d449ed0018f86"
+  },
+  "comp-comparison.md": {
+    "mtime": 1790613982.6409762,
+    "seen": 1790621525.641023,
+    "ast_hash": "00088679d99792c45e5b05170794a5e1",
+    "semantic_hash": "00088679d99792c45e5b05170794a5e1"
+  },
+  "conversation.md": {
+    "mtime": 1790453936.9666755,
+    "seen": 1790621525.641024,
+    "ast_hash": "5f75f56574fd18af578d9128e48eabf0",
+    "semantic_hash": "5f75f56574fd18af578d9128e48eabf0"
+  },
+  "conversation2.md": {
+    "mtime": 1790532534.8836818,
+    "seen": 1790621525.641024,
+    "ast_hash": "fdba78c3050dbbc18f7a46f4a470111c",
+    "semantic_hash": "fdba78c3050dbbc18f7a46f4a470111c"
+  },
+  "project.yml": {
+    "mtime": 1790620935.9484525,
+    "seen": 1790621525.641024,
+    "ast_hash": "80087045f8f1874a590d5fba562c6658",
+    "semantic_hash": "80087045f8f1874a590d5fba562c6658"
+  },
+  "scripts/dmg-readme.txt": {
+    "mtime": 1790620935.9505274,
+    "seen": 1790621525.641024,
+    "ast_hash": "4f2df42f576335c6e945c0fc0cbc3964",
+    "semantic_hash": "4f2df42f576335c6e945c0fc0cbc3964"
+  },
+  "site/404.html": {
+    "mtime": 1790620969.0874927,
+    "seen": 1790621525.641025,
+    "ast_hash": "5dccc74b4e804327859ca41ef906b9d4",
+    "semantic_hash": "5dccc74b4e804327859ca41ef906b9d4"
+  },
+  "site/downloads/SHA256SUMS.txt": {
+    "mtime": 1790620946.4860363,
+    "seen": 1790621525.641025,
+    "ast_hash": "359fdd060fd2bea3145a7826f1a56535",
+    "semantic_hash": "359fdd060fd2bea3145a7826f1a56535"
+  },
+  "site/fonts/OFL-geistmono.txt": {
+    "mtime": 1790528492.1466074,
+    "seen": 1790621525.641025,
+    "ast_hash": "fe4cc681382eff30e91c042d87f245aa",
+    "semantic_hash": "fe4cc681382eff30e91c042d87f245aa"
+  },
+  "site/fonts/OFL-instrumentsans.txt": {
+    "mtime": 1790528491.4726353,
+    "seen": 1790621525.641026,
+    "ast_hash": "07770b59315b8ff37b0d85f75de3925f",
+    "semantic_hash": "07770b59315b8ff37b0d85f75de3925f"
+  },
+  "site/fonts/OFL-instrumentserif.txt": {
+    "mtime": 1790528491.8076658,
+    "seen": 1790621525.641026,
+    "ast_hash": "768c3f0d6166414610edb8aab3eebfb3",
+    "semantic_hash": "768c3f0d6166414610edb8aab3eebfb3"
+  },
+  "site/index.html": {
+    "mtime": 1790620969.087141,
+    "seen": 1790621525.641026,
+    "ast_hash": "99e7606cf4ef4bdbf9ea9084db652a59",
+    "semantic_hash": "99e7606cf4ef4bdbf9ea9084db652a59"
+  },
+  "vendor/licenses/NOTICE.txt": {
+    "mtime": 1790620541.2402894,
+    "seen": 1790621525.641026,
+    "ast_hash": "39fc9f045824a0f9c31e7907e7410d21",
+    "semantic_hash": "39fc9f045824a0f9c31e7907e7410d21"
+  },
+  "vendor/licenses/libmtp-AUTHORS.txt": {
+    "mtime": 1790445808.2177727,
+    "seen": 1790621525.641027,
+    "ast_hash": "57ed8efb2bab1b67f57704a9e5e17ad7",
+    "semantic_hash": "57ed8efb2bab1b67f57704a9e5e17ad7"
+  },
+  "vendor/licenses/libmtp-COPYING.txt": {
+    "mtime": 1790445808.212885,
+    "seen": 1790621525.641027,
+    "ast_hash": "0448d3676bc0de00406af227d341a4d1",
+    "semantic_hash": "0448d3676bc0de00406af227d341a4d1"
+  },
+  "vendor/licenses/libusb-AUTHORS.txt": {
+    "mtime": 1790445808.2205155,
+    "seen": 1790621525.641027,
+    "ast_hash": "91aeec86f29e5f7523e37559a9eef653",
+    "semantic_hash": "91aeec86f29e5f7523e37559a9eef653"
+  },
+  "vendor/licenses/libusb-COPYING.txt": {
+    "mtime": 1790445808.2152145,
+    "seen": 1790621525.641027,
+    "ast_hash": "fbc093901857fcd118f065f900982c24",
+    "semantic_hash": "fbc093901857fcd118f065f900982c24"
+  },
+  ".agents/skills/swiftui-pro/assets/swiftui-pro-icon.png": {
+    "mtime": 1790503470.5222936,
+    "seen": 1790621525.6410282,
+    "ast_hash": "9240af6f350bad0673b351c6bade5710",
+    "semantic_hash": "9240af6f350bad0673b351c6bade5710"
+  },
+  ".agents/skills/swiftui-pro/assets/swiftui-pro-icon.svg": {
+    "mtime": 1790503470.5221767,
+    "seen": 1790621525.6410282,
+    "ast_hash": "0808e380ab9551a9f514b6d7684591a3",
+    "semantic_hash": "0808e380ab9551a9f514b6d7684591a3"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_128x128.png": {
+    "mtime": 1790528400.7390945,
+    "seen": 1790621525.6410282,
+    "ast_hash": "d3c8cd3d5745285cad39d84f77348f75",
+    "semantic_hash": "d3c8cd3d5745285cad39d84f77348f75"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png": {
+    "mtime": 1790528400.7433462,
+    "seen": 1790621525.6410282,
+    "ast_hash": "dc6d8a725801c94a6d68aa30a065ec40",
+    "semantic_hash": "dc6d8a725801c94a6d68aa30a065ec40"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_16x16.png": {
+    "mtime": 1790528400.7315476,
+    "seen": 1790621525.6410291,
+    "ast_hash": "3d3ee086e014d31469de9aabe7ab895b",
+    "semantic_hash": "3d3ee086e014d31469de9aabe7ab895b"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_16x16@2x.png": {
+    "mtime": 1790528400.7331696,
+    "seen": 1790621525.6410291,
+    "ast_hash": "ef969b643ac4b916459a8c65eb3fd52f",
+    "semantic_hash": "ef969b643ac4b916459a8c65eb3fd52f"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_256x256.png": {
+    "mtime": 1790528400.7474313,
+    "seen": 1790621525.6410291,
+    "ast_hash": "dc6d8a725801c94a6d68aa30a065ec40",
+    "semantic_hash": "dc6d8a725801c94a6d68aa30a065ec40"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_256x256@2x.png": {
+    "mtime": 1790528400.7562315,
+    "seen": 1790621525.6410298,
+    "ast_hash": "12f6edf524cbec7bd2e81449fb4bd749",
+    "semantic_hash": "12f6edf524cbec7bd2e81449fb4bd749"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_32x32.png": {
+    "mtime": 1790528400.7347107,
+    "seen": 1790621525.6410298,
+    "ast_hash": "ef969b643ac4b916459a8c65eb3fd52f",
+    "semantic_hash": "ef969b643ac4b916459a8c65eb3fd52f"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_32x32@2x.png": {
+    "mtime": 1790528400.736608,
+    "seen": 1790621525.6410298,
+    "ast_hash": "45f05aa46dbe37a897d4d78980859626",
+    "semantic_hash": "45f05aa46dbe37a897d4d78980859626"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_512x512.png": {
+    "mtime": 1790528400.7649736,
+    "seen": 1790621525.6410298,
+    "ast_hash": "12f6edf524cbec7bd2e81449fb4bd749",
+    "semantic_hash": "12f6edf524cbec7bd2e81449fb4bd749"
+  },
+  "App/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png": {
+    "mtime": 1790528400.7769864,
+    "seen": 1790621525.641031,
+    "ast_hash": "472be0681900735dcc945dc4b2134261",
+    "semantic_hash": "472be0681900735dcc945dc4b2134261"
+  },
+  "site/favicon.png": {
+    "mtime": 1790528400.7878428,
+    "seen": 1790621525.641031,
+    "ast_hash": "45f05aa46dbe37a897d4d78980859626",
+    "semantic_hash": "45f05aa46dbe37a897d4d78980859626"
+  },
+  "site/icon.png": {
+    "mtime": 1790528400.78595,
+    "seen": 1790621525.641031,
+    "ast_hash": "12f6edf524cbec7bd2e81449fb4bd749",
+    "semantic_hash": "12f6edf524cbec7bd2e81449fb4bd749"
+  }
+}
