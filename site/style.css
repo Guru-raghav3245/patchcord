@@ -161,7 +161,7 @@ footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-b
 @media (max-width: 480px) { .card { padding: 20px; } }
 @media (max-width: 480px) {
   .wrap { padding-inline: 16px; }
-  .site-nav nav { gap: 16px; }
+  .site-nav nav { gap: 10px; }
   .site-nav nav a { font-size: 14px; }
   .cta { width: 100%; justify-content: center; }
 }
