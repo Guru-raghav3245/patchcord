@@ -13,7 +13,6 @@ v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activ
 - **Website:** https://patchcord.vercel.app — `site/` is a static page on Vercel (`index.html`, `404.html`, shared `style.css`, self-hosted OFL fonts in `site/fonts/`, the hero's app window drawn in HTML/CSS with generic names only, per DESIGN.md; the nav glide is a small inline script) (Hobby, project `patchcord`), linked to this GitHub repo; a push that changes `site/` or `vercel.json` deploys it (root `vercel.json` serves only `site/`). `site/404.html` is Vercel's custom 404 (old DMG links land there, with a button to the current DMG). Don't add `headers` rules matching `*.dmg` in `vercel.json`: they also apply to missing paths, and Chrome then rejects the 404 with `ERR_INVALID_RESPONSE`. Vercel already serves `.dmg` as `application/x-apple-diskimage`, which browsers download. To release: bump `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` in `project.yml` and the first line of `scripts/dmg-readme.txt`, run `make-dmg.sh` (writes straight into `site/downloads/`, replacing the old DMG), update the version/size/filenames in `site/index.html` (and update the HTML app window in the hero, `.appwin`, if the app UI changed) and the download link in `site/404.html` (Vercel's custom 404, which also catches links to old DMGs), then commit and push.
 - **Install flow:** verified with a real Safari download: warning → Privacy & Security → Open Anyway → launch. Later launches have no prompts.
 - **Untested:**
-  - Multi-device: CT10 + Redmi A5 open together and switching works (2026-09-27); unplugging one while both are open not yet checked
   - microSD / second storage (no card available)
   - Real DSD files
   - Mac sleep/wake with the device connected
@@ -98,9 +97,9 @@ Swift + SwiftUI over libmtp/libusb through a bridging header (`App/Bridging-Head
   - `--mkdir`
   - `--rename /dev/path newname`
   - `--rm`
-- `App/ContentView.swift`: device switcher (the serif device name becomes a menu when >1 device is connected), error + Retry, `BrowserView`, `TransferBar` (two bars + Finder-style ✕), and `NameSheet`.
+- `App/ContentView.swift`: device switcher (the serif device name becomes a menu when >1 device is connected), a 3 s "connected"/"disconnected" snackbar (`DeviceManager.notice`, set by `publish` from the device-list diff, skipped for the scan at launch, also announced to VoiceOver), error + Retry, `BrowserView`, `TransferBar` (two bars + Finder-style ✕), and `NameSheet`.
   - **Look:** DESIGN.md's faceplate; tokens, fonts, `LED`, `EngravedLabel` and `.faceplate` button styles are in `App/Theme.swift`. Window uses `.hiddenTitleBar`.
-  - **UI snapshot (Debug only):** `PATCHCORD_SNAPSHOT=/tmp/ui.png PATCHCORD_APPEARANCE=dark PATCHCORD_SNAPSHOT_DELAY=6 <app>/Contents/MacOS/Patchcord` (add `-ApplePersistenceIgnoreState YES` if it reports "no window": restored window state can leave the app windowless for the hook) saves the window's own rendering, so no Screen Recording permission is needed. Add `PATCHCORD_FAKE_TRANSFER=1` to show a mid-upload transfer bar (file 3 of 12, 24% total).
+  - **UI snapshot (Debug only):** `PATCHCORD_SNAPSHOT=/tmp/ui.png PATCHCORD_APPEARANCE=dark PATCHCORD_SNAPSHOT_DELAY=6 <app>/Contents/MacOS/Patchcord` (add `-ApplePersistenceIgnoreState YES` if it reports "no window": restored window state can leave the app windowless for the hook) saves the window's own rendering, so no Screen Recording permission is needed. Add `PATCHCORD_FAKE_TRANSFER=1` to show a mid-upload transfer bar (file 3 of 12, 24% total). Add `PATCHCORD_FAKE_NOTICE=1` to show the device snackbar.
   - **`BrowserView`:** storage picker, breadcrumb, sortable `Table`, drop-in to upload, and drag-out via a temp download. ⌘ held at drag start makes it a move.
   - **macOS 12 workaround:** double-click and the context menu are per-cell (`rowActions`), because row-level actions need macOS 13.
 

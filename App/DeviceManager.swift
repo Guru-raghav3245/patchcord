@@ -40,6 +40,15 @@ final class DeviceManager: ObservableObject {
 
     var active: Device? { devices.first { $0.id == activeID } }
 
+    /// Brief "connected" / "disconnected" message, shown as a snackbar.
+    struct Notice: Equatable {
+        let id = UUID()
+        let text: String
+        let connected: Bool  // lit LED
+    }
+    @Published var notice: Notice?
+    private var scannedOnce = false  // no notice for the devices already plugged in at launch
+
     // Transfer state (see Transfers.swift). Stored here because extensions can't add stored properties.
     @Published var transfer: TransferStatus?
     @Published var listingVersion = 0  // bumped after transfers so the browser reloads
@@ -57,6 +66,9 @@ final class DeviceManager: ObservableObject {
         mtp.async { LIBMTP_Init() }
         watcher = USBWatcher(queue: .main) { [weak self] in self?.scheduleRescan() }
         #if DEBUG
+        if ProcessInfo.processInfo.environment["PATCHCORD_FAKE_NOTICE"] != nil {  // UI check of the snackbar
+            notice = Notice(text: "Music Player connected", connected: true)
+        }
         if ProcessInfo.processInfo.environment["PATCHCORD_FAKE_TRANSFER"] != nil {  // UI check of the transfer bar
             transfer = TransferStatus(verb: "Uploading", count: 12, index: 2, name: "03 Aagaya Gangai - Dheem Dhira.flac",
                                       fraction: 0.62, totalBytes: 612_000_000, doneBytes: 118_000_000, currentBytes: 48_000_000)
@@ -124,6 +136,21 @@ final class DeviceManager: ObservableObject {
     }
 
     private func publish(_ found: [Device]) {
+        let added = found.filter { d in !devices.contains { $0.id == d.id } }.map(\.name)
+        let removed = devices.filter { d in !found.contains { $0.id == d.id } }.map(\.name)
+        if scannedOnce, !added.isEmpty || !removed.isEmpty {
+            let list = { (names: [String]) in ListFormatter.localizedString(byJoining: names) }
+            let text = [added.isEmpty ? nil : "\(list(added)) connected",
+                        removed.isEmpty ? nil : "\(list(removed)) disconnected"].compactMap { $0 }.joined(separator: " · ")
+            let n = Notice(text: text, connected: !added.isEmpty)
+            notice = n
+            NSAccessibility.post(element: NSApp as Any, notification: .announcementRequested,
+                                 userInfo: [.announcement: text, .priority: NSAccessibilityPriorityLevel.high.rawValue])
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                if self?.notice == n { self?.notice = nil }
+            }
+        }
+        scannedOnce = true
         devices = found
         if active == nil { activeID = found.first?.id }
         print("[devices] " + (found.isEmpty ? "none" : found.map(\.summary).joined(separator: "; ")))

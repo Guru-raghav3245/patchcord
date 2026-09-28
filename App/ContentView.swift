@@ -20,6 +20,30 @@ struct ContentView: View {
         }
         .frame(minWidth: 720, minHeight: 460)
         .background(Theme.bg.ignoresSafeArea())
+        .overlay(alignment: .bottom) {
+            if let n = manager.notice {
+                Snackbar(notice: n).padding(.bottom, manager.transfer == nil ? 28 : 120)  // clear the transfer bar
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.default, value: manager.notice)
+    }
+}
+
+/// Device connected / disconnected notice: a small faceplate panel with the indicator light.
+private struct Snackbar: View {
+    let notice: DeviceManager.Notice
+    var body: some View {
+        HStack(spacing: 10) {
+            LED(lit: notice.connected)
+            Text(notice.text).font(Theme.sans(13, .medium)).foregroundColor(Theme.text).lineLimit(1)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Theme.panel))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.line))
+        .shadow(color: .black.opacity(0.25), radius: 12, y: 4)
+        .accessibilityHidden(true)  // announced by DeviceManager instead
     }
 }
 
