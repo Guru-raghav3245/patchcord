@@ -146,6 +146,8 @@ code {
 .steps li:last-child { border-bottom: 0; }
 .steps li::before { content: counter(step, decimal-leading-zero); position: absolute; left: 0; top: 12px; font: 500 11px/2.2 "Geist Mono", ui-monospace, monospace; letter-spacing: .14em; color: var(--muted); }
 .steps b { color: var(--text); font-weight: 600; }
+.card-why { margin-top: 16px; padding-top: 24px; border-top: 1px solid var(--line); }
+.card-why p { color: var(--muted); font-size: 15px; max-width: 46em; margin: 0; }
 .card-foot { margin: 16px 0 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 15px; }
 
 footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding: 56px 0 40px; color: var(--muted); font-size: 14px; }
