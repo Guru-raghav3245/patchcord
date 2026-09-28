@@ -49,7 +49,17 @@
      DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | DEVICE_FLAG_NO_ZERO_READS |
 --- a/src/libmtp.c
 +++ b/src/libmtp.c
-@@ -7082,6 +7082,7 @@
+@@ -4630,6 +4630,9 @@
+ 
+   if (currentHandles.Handler == NULL || currentHandles.n == 0)
+     return NULL;
++
++  // Fetch the whole folder's metadata in one request where the device allows it.
++  ptp_object_want_children(params, parent == LIBMTP_FILES_AND_FOLDERS_ROOT ? 0 : parent);
+ 
+   for (i = 0; i < currentHandles.n; i++) {
+     LIBMTP_file_t *file;
+@@ -7082,6 +7085,7 @@
      }
    } else if (ptp_operation_issupported(params, PTP_OC_MTP_SetObjectPropValue)) {
      ret = set_object_string(device, object_id, PTP_OPC_ObjectFileName, newname);
@@ -57,7 +67,7 @@
      if (ret != 0) {
        add_error_to_errorstack(device, LIBMTP_ERROR_GENERAL, "set_object_filename(): "
                " could not set object filename.");
-@@ -7294,7 +7295,7 @@
+@@ -7294,7 +7298,7 @@
  
    ret = set_object_filename(device, object_id, map_libmtp_type_to_ptp_type(file->filetype), (const char **) &newname);
  
@@ -150,6 +160,16 @@
  
  /* connect_first_device return codes */
  #define PTP_CD_RC_CONNECTED	0
+--- a/src/ptp.h
++++ b/src/ptp.h
+@@ -4596,6 +4596,7 @@
+ uint16_t ptp_remove_object_from_cache(PTPParams *params, uint32_t handle);
+ uint16_t ptp_add_object_to_cache(PTPParams *params, uint32_t handle);
+ uint16_t ptp_object_want (PTPParams *, uint32_t handle, unsigned int want, PTPObject**retob);
++uint16_t ptp_object_want_children (PTPParams *, uint32_t parent);
+ void ptp_objects_sort (PTPParams *);
+ uint16_t ptp_object_find (PTPParams *params, uint32_t handle, PTPObject **retob);
+ uint16_t ptp_object_find_or_insert (PTPParams *params, uint32_t handle, PTPObject **retob);
 --- a/src/ptp.c
 +++ b/src/ptp.c
 @@ -174,17 +174,15 @@
@@ -172,3 +192,118 @@
  			CHECK_PTP_RC(ret);
  		}
  		break;
+@@ -8927,6 +8925,114 @@
+ 	params->objects[insertat].oid = handle;
+ 	*retob = &params->objects[insertat];
+ 	params->nrofobjects++;
++	return PTP_RC_OK;
++}
++
++static int
++ptp_prop_handle_cmp (const void *a, const void *b)
++{
++	uint32_t x = ((const MTPProperties *)a)->ObjectHandle, y = ((const MTPProperties *)b)->ObjectHandle;
++	return x < y ? -1 : x > y;
++}
++
++/*
++ * Loads the ObjectInfo and MTP proplist of every child of parent (0 = root)
++ * into the object cache with one GetObjPropList per property, so
++ * ptp_object_want() needn't send a request or two per object (~8 ms each on
++ * Android). Asks for single properties because with "all properties" older
++ * Android replaces format 0 with the parent's own format and returns only
++ * subfolders. Tried even with DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST, which
++ * Android gets for that reason: objects that come back without a filename and
++ * format are left out, and those, or all of them if a request fails, load the
++ * slow way.
++ */
++uint16_t
++ptp_object_want_children (PTPParams *params, uint32_t parent)
++{
++	static const uint16_t wanted[] = { PTP_OPC_ObjectFileName, PTP_OPC_ObjectFormat,
++		PTP_OPC_ObjectSize, PTP_OPC_DateModified, PTP_OPC_StorageID, PTP_OPC_ParentObject };
++	MTPProperties	*props = NULL;
++	int		nrofprops = 0, i, j, k;
++	uint16_t	ret;
++
++	if (!ptp_operation_issupported(params, PTP_OC_MTP_GetObjPropList))
++		return PTP_RC_OperationNotSupported;
++	for (i = 0; i < (int)(sizeof(wanted)/sizeof(wanted[0])); i++) {
++		MTPProperties	*more = NULL, *all;
++		int		n = 0;
++
++		ret = ptp_mtp_getobjectproplist_generic (params, parent, 0, wanted[i], 0, 1, &more, &n);
++		if (ret == PTP_RC_OK && n > 0 && !(all = realloc (props, (nrofprops + n) * sizeof(MTPProperties)))) {
++			ptp_destroy_object_prop_list (more, n);
++			ret = PTP_RC_GeneralError;
++		}
++		if (ret != PTP_RC_OK) {
++			ptp_destroy_object_prop_list (props, nrofprops);
++			return ret;
++		}
++		if (n > 0) {
++			memcpy (all + nrofprops, more, n * sizeof(MTPProperties));
++			props = all;
++			nrofprops += n;
++		}
++		free (more);
++	}
++	qsort (props, nrofprops, sizeof(MTPProperties), ptp_prop_handle_cmp);
++	for (i = 0; i < nrofprops; i = j) {
++		uint32_t	handle = props[i].ObjectHandle;
++		PTPObject	*ob = NULL;
++		int		have = 0;
++
++		for (j = i; j < nrofprops && props[j].ObjectHandle == handle; j++)
++			;
++		/* Replace any cached copy, so the listing is fresh. */
++		ptp_remove_object_from_cache (params, handle);
++		if (ptp_object_find_or_insert (params, handle, &ob) != PTP_RC_OK ||
++		    !(ob->mtpprops = malloc ((j - i) * sizeof(MTPProperties)))) {
++			for (k = i; k < j; k++)
++				ptp_destroy_object_prop (&props[k]);
++			continue;
++		}
++		/* The strings move with the structs; free(props) below doesn't free them. */
++		memcpy (ob->mtpprops, &props[i], (j - i) * sizeof(MTPProperties));
++		ob->nrofmtpprops = j - i;
++		for (k = i; k < j; k++) {
++			switch (props[k].property) {
++			case PTP_OPC_StorageID:
++				ob->oi.StorageID = props[k].propval.u32;
++				break;
++			case PTP_OPC_ParentObject:
++				ob->oi.ParentObject = props[k].propval.u32;
++				break;
++			case PTP_OPC_ObjectFormat:
++				ob->oi.ObjectFormat = props[k].propval.u16;
++				have |= 1;
++				break;
++			case PTP_OPC_ObjectSize:
++				if (props[k].datatype == PTP_DTC_UINT64)
++					ob->oi.ObjectCompressedSize = props[k].propval.u64;
++				else if (props[k].datatype == PTP_DTC_UINT32)
++					ob->oi.ObjectCompressedSize = props[k].propval.u32;
++				break;
++			case PTP_OPC_ObjectFileName:
++				if (props[k].propval.str && !ob->oi.Filename) {
++					ob->oi.Filename = strdup (props[k].propval.str);
++					have |= 2;
++				}
++				break;
++			case PTP_OPC_DateModified:
++				ob->oi.ModificationDate = ptp_unpack_PTPTIME (props[k].propval.str);
++				break;
++			}
++		}
++		if (have != 3) {
++			ptp_remove_object_from_cache (params, handle);
++			continue;
++		}
++		ob->flags |= PTPOBJECT_OBJECTINFO_LOADED | PTPOBJECT_STORAGEID_LOADED |
++			     PTPOBJECT_PARENTOBJECT_LOADED | PTPOBJECT_MTPPROPLIST_LOADED;
++	}
++	free (props);
+ 	return PTP_RC_OK;
+ }
+ 

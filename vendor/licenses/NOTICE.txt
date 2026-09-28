@@ -19,6 +19,9 @@ libmtp is modified. The changes are in libmtp-ct10.patch, which applies with
     for ~60 s.
   - Cancelling a download no longer polls GET_DEVICE_STATUS (some phones never
     answer it and stop responding) and sends the cancel request only once.
+  - Listing a folder fetches every child's metadata with one GetObjPropList
+    per property (ptp_object_want_children) instead of one or two requests per
+    object; objects it can't fill load the old way.
   - Two small memory leaks fixed in LIBMTP_Set_Object_Filename.
   - A failed open (e.g. the USB interface is claimed by another process) now
     closes the USB device handle instead of leaking it.
