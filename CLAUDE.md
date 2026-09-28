@@ -4,8 +4,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-> **Reminder for the user (raise this at the start of the next session):** the multi-device picker has never been tested with two real devices. The user will soon have a second Android phone. Ask whether it's available, and if so, test with both it and the CT10 connected: both appear, switching between them works, and unplugging one leaves the other working.
-
 v1.0 is built, and all six phases in `PLAN.md` are done and verified on an Activo CT10. The spec is `Patchcord — v1 Spec.md`; `PLAN.md` has per-phase detail and measurements.
 
 - **Repo:** https://github.com/Guru-raghav3245/patchcord (private, branch `main`). `conversation*.md` are local chat exports; keep them out of git.
