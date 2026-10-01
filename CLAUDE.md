@@ -82,6 +82,16 @@ There are no unit tests. The app has headless commands for testing against a rea
 - **Stable id:** the CT10 keeps the same libusb id (`bus-devnum`, e.g. `1-1`) across a replug, so `DeviceManager` re-validates held sessions on every rescan instead of trusting the id.
 - **Debugging:** the GUI app logs `[devices] ...` lines to stdout on every change (run the binary directly to see them). `scripts/reopen-test.c` checks open → close → reopen in one process.
 
+## Competitors on the CT10
+
+Found by reading their source code and binaries on 2026-09-28 (`conversations/comp-comparison.md`, untracked). None of it was confirmed on a CT10. All three reset the CT10 one way or another, and none of them knows it can't recover (see "Why the CT10 can't survive a reset"). Upload cancel is the second shared bug.
+
+- **Android File Transfer 1.0.12** (Google, withdrawn 2024): its own old libmtp, x86_64 only (runs under Rosetta). It applies the Android flags `0x18008106` to every Android device, so it resets on every close, and it resets again and retries when opening a session fails. It has the ~60 s upload-cancel stall. Its "Android File Transfer Agent" login item can grab the device on plug-in even after the app is deleted.
+- **MacDroid 2.10** (paid, universal): unpatched libmtp 1.1.23 with the same flags, so it has the same reset on close, the same reset and retry on a failed open, and the same cancel stall. There's no CT10 entry to opt out. Moving files to the device needs the paid version.
+- **OpenMTP** (open source): its default "Kalam" mode uses a pure-Go MTP stack (go-mtpfs/go-mtpx), with no libmtp and no device quirks. `Configure()` resets and retries when opening a session fails (`go-mtpfs/mtp/mtp.go:661`), and `Close()` resets when closing one fails. Cancelling an upload just stops sending, with no cancel request, so the device waits for the rest of the file. `Open()` ignores a failed interface claim, so a busy device gives confusing errors. It refuses to run with more than one MTP device connected. Its "Legacy" mode is a separate x86_64-only libmtp tool.
+- **Patchcord:** no reset on close for any Android device. The reset-and-retry on a failed open is skipped only for `NO_USB_RESET` devices like the CT10, because it's what un-wedges a Redmi A5. Upload and download cancel are fixed, and Patchcord takes the device back from `ptpcamerad`, which none of the three do.
+- **Same engine elsewhere:** GNOME's and KDE's file managers and Calibre use libmtp with its default settings, so they reset older players too (as the site's Older Android card says).
+
 ## Architecture
 
 Swift + SwiftUI over libmtp/libusb through a bridging header (`App/Bridging-Header.h`), with no shim. Both libraries are LGPL, so they stay **dynamic** `.dylib`s in `Contents/Frameworks`. Never link them statically.
