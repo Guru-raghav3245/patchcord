@@ -83,3 +83,4 @@
 | 2026-09-27 | App accent `#A8620A` instead of `#F2A33A` | White selected-row text needs ≥4.5:1 |
 | 2026-09-27 | Hero app window drawn in HTML/CSS instead of a screenshot | User preference; crisper and themable |
 | 2026-09-29 | One field-note card ("Older Android devices") between Install and Source | User request; a single panel explaining the Android ≤7.1 USB-reset problem and the fix. Spec sheets stay the default elsewhere |
+| 2026-10-01 | Field-note card replaced by a "Compared" section: hairline table (Patchcord column on `--panel`, amber LED for good answers, no emoji), plain language for non-technical readers, then the fix as numbered steps | User request; on ≤860 px each table row stacks with the app name above each answer |

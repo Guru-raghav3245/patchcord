@@ -15,7 +15,7 @@
 <header class="wrap site-nav">
   <img src="icon.png" alt="">
   <a class="name" href="/">Patchcord</a>
-  <nav aria-label="Sections"><a href="#install">Install</a><a href="#android">Android</a><a href="#specs">Specs</a><a href="#source">Source</a></nav>
+  <nav aria-label="Sections"><a href="#install">Install</a><a href="#compare">Compare</a><a href="#specs">Specs</a><a href="#source">Source</a></nav>
 </header>
 
 <main>
@@ -71,38 +71,55 @@
     </section>
   </div>
 
-  <section class="wrap sheet" id="android" tabindex="-1" aria-labelledby="android-h">
-    <h2 id="android-h" class="serif">Older Android devices</h2>
-    <article class="card" aria-labelledby="card-h">
-      <div class="label">Field note · Android 7.1 and earlier</div>
-      <h3 id="card-h">Why an older player can look connected but stop answering</h3>
-      <p class="lead">A music player on Android 7.1 or earlier can stay listed as connected after a Mac app is done with it, yet time out on every request until you unplug it. The cause is a USB reset that the device's Android version can't recover from. Patchcord never sends that reset.</p>
-      <div class="card-cols">
-        <div>
-          <h4 class="label">The problem</h4>
-          <ol class="steps">
-            <li><b>The reset.</b> libmtp, the open-source MTP library behind many file-transfer tools, has reset the USB connection by default whenever it closes a session with an Android device since 2014.</li>
-            <li><b>The reset ends the device's MTP server.</b> This happens on every Android version. Android 8 and later notice and start a new server within about half a second.</li>
-            <li><b>Android 7.1 and earlier miss the reset.</b> The device is back on the bus in about 50&nbsp;ms, and these versions ignore any disconnect shorter than one second, so the framework never learns anything happened.</li>
-            <li><b>They also can't tell the server is gone.</b> The MTP service starts a server only if it doesn't have one, and it never lets go of the stopped one. Nothing reads commands again until a real unplug. Android fixed this in 8.0.</li>
-          </ol>
-        </div>
-        <div>
-          <h4 class="label">How Patchcord fixes it</h4>
-          <ol class="steps">
-            <li><b>No reset on close.</b> Patchcord ships a patched libmtp that never resets an Android device when a session ends.</li>
-            <li><b>Sessions stay open.</b> Each device keeps a single session from plug-in until you unplug it or quit, so there's nothing to close in between.</li>
-            <li><b>No reset on failure, for players known to get stuck.</b> When a session fails to open, libmtp resets the device and tries again. That reset rescues newer phones, so Patchcord keeps it for them and skips it only for players known to get stuck.</li>
-            <li><b>Tested on real hardware.</b> Measured on an Android 5 music player and an Android 15 phone. <a href="#source">The patch</a> is in the libmtp source download.</li>
-          </ol>
-        </div>
-      </div>
-      <div class="card-why">
-        <h4 class="label">Why other tools get stuck</h4>
-        <p>Many MTP tools are built on libmtp with its default settings, including GNOME's and KDE's file managers and Calibre. With those defaults, every Android device gets the reset when a session closes, so an older player works once and then goes silent until it's unplugged. Google's own Android File Transfer, long the default on the Mac, was withdrawn in 2024 and no longer gets updates.</p>
-      </div>
-      <p class="card-foot">Already stuck from another app? Unplug the player for a couple of seconds and plug it back in.</p>
-    </article>
+  <section class="wrap sheet" id="compare" tabindex="-1" aria-labelledby="compare-h">
+    <div class="label">Compared</div>
+    <h2 id="compare-h" class="serif">Other Mac apps can leave your player stuck.</h2>
+    <p class="intro">When most Mac apps finish with a device, they briefly restart its USB connection. Phones from the last few years reconnect on their own in half a second. Music players running Android 7 or earlier don't: they still look connected, but stop responding until you unplug the cable and plug it back in. Patchcord never restarts the connection.</p>
+    <table class="cmp">
+      <thead>
+        <tr><td></td><th scope="col">Android File Transfer</th><th scope="col">MacDroid</th><th scope="col">OpenMTP</th><th scope="col" class="us">Patchcord</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row" class="label">Older player, after you quit the app</th>
+          <td data-app="Android File Transfer">Stops responding until you unplug it and plug it back in</td>
+          <td data-app="MacDroid">Stops responding until you unplug it and plug it back in</td>
+          <td data-app="OpenMTP">Usually fine, but if connecting or disconnecting goes wrong, it stops responding until you replug it</td>
+          <td data-app="Patchcord" class="us"><span class="led" aria-hidden="true"></span>Stays ready for the next time</td>
+        </tr>
+        <tr>
+          <th scope="row" class="label">If you cancel a copy</th>
+          <td data-app="Android File Transfer">Your next action on the player waits about a minute</td>
+          <td data-app="MacDroid">Your next action on the player waits about a minute</td>
+          <td data-app="OpenMTP">The player keeps waiting for the rest of the file until you replug it</td>
+          <td data-app="Patchcord" class="us"><span class="led" aria-hidden="true"></span>Stops in about 3 seconds and removes the half-copied files</td>
+        </tr>
+        <tr>
+          <th scope="row" class="label">Macs with Apple chips (M1 and later)</th>
+          <td data-app="Android File Transfer">Made for older Intel Macs. Apple is removing what lets it run on newer ones, so it's expected to stop working in macOS 28</td>
+          <td data-app="MacDroid"><span class="led" aria-hidden="true"></span>Works</td>
+          <td data-app="OpenMTP"><span class="led" aria-hidden="true"></span>Works</td>
+          <td data-app="Patchcord" class="us"><span class="led" aria-hidden="true"></span>Made for them</td>
+        </tr>
+        <tr>
+          <th scope="row" class="label">Price</th>
+          <td data-app="Android File Transfer">Free, but Google stopped updating it in 2024</td>
+          <td data-app="MacDroid">Copying music onto the player needs the paid version</td>
+          <td data-app="OpenMTP">Free</td>
+          <td data-app="Patchcord" class="us">Free</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">We found these by studying how each app works inside (Android File Transfer 1.0.12, MacDroid 2.10, OpenMTP 3.3). Patchcord's times were measured on a real music player on Android 5 and a phone on Android 15.</p>
+    <div class="fix">
+      <h3 class="label">How Patchcord fixes it</h3>
+      <ol class="steps">
+        <li><b>No reset on close.</b> Patchcord ships a patched libmtp that never resets an Android device when a session ends.</li>
+        <li><b>Sessions stay open.</b> Each device keeps a single session from plug-in until you unplug it or quit, so there's nothing to close in between.</li>
+        <li><b>No reset on failure, for players known to get stuck.</b> When a session fails to open, libmtp resets the device and tries again. That reset rescues newer phones, so Patchcord keeps it for them and skips it only for players known to get stuck.</li>
+        <li><b>Tested on real hardware.</b> Measured on an Android 5 music player and an Android 15 phone. <a href="#source">The patch</a> is in the libmtp source download.</li>
+      </ol>
+    </div>
   </section>
 
   <section class="wrap sheet" id="specs" tabindex="-1" aria-labelledby="specs-h">

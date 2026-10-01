@@ -139,20 +139,33 @@ code {
 .rows .v strong { font-weight: 600; }
 .note { color: var(--muted); font-size: 15px; max-width: 46em; margin: 20px 0 0; }
 
-/* field-note card (user request, 2026-09-29): one panel, not a card grid */
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 32px; }
-.card h3 { font-size: 22px; line-height: 1.3; font-weight: 600; margin: 12px 0 8px; }
-.card .lead { color: var(--muted); font-size: 17px; max-width: 46em; margin: 0 0 24px; }
-.card-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; border-top: 1px solid var(--line); padding-top: 24px; }
-.card h4 { margin: 0 0 12px; }
+/* comparison table: rows of the spec sheet, Patchcord's column on the panel tone */
+#compare h2 { margin-top: 12px; }
+.intro { color: var(--muted); font-size: 17px; max-width: 46em; margin: -8px 0 32px; }
+.cmp { width: 100%; border-collapse: collapse; border-top: 1px solid var(--line); table-layout: fixed; }
+.cmp th, .cmp td { text-align: left; vertical-align: top; padding: 16px 14px; border-bottom: 1px solid var(--line); }
+.cmp td { font-size: 15px; color: var(--muted); }
+.cmp thead th { font-size: 15px; font-weight: 600; color: var(--text); }
+.cmp tbody th { width: 200px; padding-left: 0; padding-top: 19px; font-weight: 500; }
+.cmp .us { background: var(--panel); color: var(--text); }
+.cmp td .led { margin-right: 8px; vertical-align: 1px; }
+@media (max-width: 860px) {  /* one block per row; each cell names its app */
+  .cmp, .cmp tbody, .cmp tr, .cmp th, .cmp td { display: block; width: auto; }
+  .cmp thead { display: none; }
+  .cmp tr { padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .cmp tbody th { padding: 0 0 8px; border: 0; }
+  .cmp td { padding: 8px 12px; border: 0; border-radius: 8px; }
+  .cmp td::before { content: attr(data-app); display: block; font-size: 13px; font-weight: 600; color: var(--text); }
+}
+
+/* numbered steps (the fix list under the comparison) */
+.fix { margin-top: 40px; max-width: 46em; }
+.fix h3 { margin: 0 0 4px; }
 .steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
 .steps li { counter-increment: step; position: relative; font-size: 15px; color: var(--muted); padding: 12px 0 12px 32px; border-bottom: 1px solid var(--line); }
 .steps li:last-child { border-bottom: 0; }
 .steps li::before { content: counter(step, decimal-leading-zero); position: absolute; left: 0; top: 12px; font: 500 11px/2.2 "Geist Mono", ui-monospace, monospace; letter-spacing: .14em; color: var(--muted); }
 .steps b { color: var(--text); font-weight: 600; }
-.card-why { margin-top: 16px; padding-top: 24px; border-top: 1px solid var(--line); }
-.card-why p { color: var(--muted); font-size: 15px; max-width: 46em; margin: 0; }
-.card-foot { margin: 16px 0 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 15px; }
 
 footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding: 56px 0 40px; color: var(--muted); font-size: 14px; }
 
@@ -162,9 +175,7 @@ footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-b
   .rows > li { grid-template-columns: 1fr; gap: 4px; }
   .sheet { padding-top: 56px; }
   .sheet h2 { font-size: 34px; }
-  .card-cols { grid-template-columns: 1fr; gap: 16px; }
 }
-@media (max-width: 480px) { .card { padding: 20px; } }
 @media (max-width: 480px) {
   .wrap { padding-inline: 16px; }
   .site-nav nav { gap: 10px; }
