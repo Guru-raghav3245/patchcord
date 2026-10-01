@@ -22,7 +22,11 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scrollbar-color: var(--faint) var(--bg); }
+@supports not (scrollbar-color: auto) {   /* Safari: no scrollbar-color yet */
+  ::-webkit-scrollbar { width: 12px; background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--faint); border: 3px solid var(--bg); border-radius: 6px; }
+}
 body {
   margin: 0; background: var(--bg); color: var(--text);
   font: 16px/1.6 "Instrument Sans", -apple-system, sans-serif; -webkit-font-smoothing: antialiased;

@@ -41,6 +41,7 @@
 | `--ok` | `#5FB37A` | `#2F8A4E` | success |
 | `--err` | `#E0604F` | `#C2412F` | errors |
 
+- **Site scroll bar:** graphite, never amber: thumb `--faint`, track `--bg` (`scrollbar-color`, with a `::-webkit-scrollbar` fallback for Safari). User choice, 2026-10-01.
 - **Dark mode:** the site is dark-first (`prefers-color-scheme`); light mode is the paper/ink pair above. Text on amber fills is always `#16171A`.
 - **App:** `AccentColor` is **deep amber `#A8620A`** (not `#F2A33A`): macOS draws selected rows with white text on the accent, and white on `#F2A33A` is 2.1:1; `#A8620A` is 4.75:1. macOS only uses it when the system accent is "Multicolour" (the default). Everything else in the app uses the `Theme` tokens above (LED `#F2A33A`, `amberInk` for links, `ok`/`err` for status).
 
