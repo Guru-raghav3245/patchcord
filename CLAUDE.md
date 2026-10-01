@@ -82,14 +82,29 @@ There are no unit tests. The app has headless commands for testing against a rea
 - **Stable id:** the CT10 keeps the same libusb id (`bus-devnum`, e.g. `1-1`) across a replug, so `DeviceManager` re-validates held sessions on every rescan instead of trusting the id.
 - **Debugging:** the GUI app logs `[devices] ...` lines to stdout on every change (run the binary directly to see them). `scripts/reopen-test.c` checks open → close → reopen in one process.
 
-## Competitors on the CT10
+## Competitors
+
+### Requirements vs competitors
+
+Patchcord's two goals: (1) older Android devices (Android 7.1 and earlier, like the CT10) keep working across sessions, (2) keeps running on current and future macOS. From macOS 28 Apple largely removes Rosetta 2 (announced at WWDC25: Rosetta stays through macOS 27; macOS 26 is the last release for Intel Macs), so goal 2 means native Apple Silicon code. Checked 2026-10-01 from the app bundles (`lipo`, `LSMinimumSystemVersion`, `spctl`), OpenMTP 3.3.0's source and the vendors' published requirements.
+
+| | Android ≤7.1 (CT10) | macOS 28+ (native Apple Silicon, no Rosetta) | Intel Macs | Signing |
+|---|---|---|---|---|
+| **Android File Transfer 1.0.12** | ✗ resets on close and on failed open | ✗ x86_64 only, runs under Rosetta, so it stops working when Rosetta goes; no updates since Google withdrew it in 2024 | ✓ (min macOS 10.7) | Notarized Developer ID (Google) |
+| **MacDroid 2.10** | ✗ resets on close and on failed open | ✓ universal binary, maintained | ✓ (min macOS 11.5 in the bundle) | Notarized Developer ID (Electronic Team) |
+| **OpenMTP 3.x** | ✗ resets when opening or closing a session fails; cancel leaves the device waiting | ✓ native arm64 builds since 3.2.0; its Legacy mode is x86_64 only | ✓ separate x64 build (min macOS 10.11–10.12) | Notarized Electron app |
+| **Patchcord 1.0.6** | ✓ no reset on close for any Android device; no reset on failed open for `NO_USB_RESET` devices | ✓ arm64 only, no Rosetta anywhere (app and bundled dylibs) | ✗ Apple Silicon only | ✗ ad-hoc; first launch needs Privacy & Security → Open Anyway |
+
+- **The gap each competitor leaves:** AFT fails both goals: it breaks older Android devices, and it needs Rosetta and is unmaintained. MacDroid and OpenMTP meet goal 2 but fail goal 1, because both reset the device. Patchcord is the only one meeting both.
+- **Where Patchcord is behind:** no Intel support (Intel Macs get no macOS after 26, so this shrinks over time), and no Developer ID/notarization, so first launch is harder than any competitor's. Patchcord has been run on macOS 26 only; macOS 27 is untested.
+
+### Why they fail on the CT10
 
 Found by reading their source code and binaries on 2026-09-28 (`conversations/comp-comparison.md`, untracked). None of it was confirmed on a CT10. All three reset the CT10 one way or another, and none of them knows it can't recover (see "Why the CT10 can't survive a reset"). Upload cancel is the second shared bug.
 
 - **Android File Transfer 1.0.12** (Google, withdrawn 2024): its own old libmtp, x86_64 only (runs under Rosetta). It applies the Android flags `0x18008106` to every Android device, so it resets on every close, and it resets again and retries when opening a session fails. It has the ~60 s upload-cancel stall. Its "Android File Transfer Agent" login item can grab the device on plug-in even after the app is deleted.
 - **MacDroid 2.10** (paid, universal): unpatched libmtp 1.1.23 with the same flags, so it has the same reset on close, the same reset and retry on a failed open, and the same cancel stall. There's no CT10 entry to opt out. Moving files to the device needs the paid version.
 - **OpenMTP** (open source): its default "Kalam" mode uses a pure-Go MTP stack (go-mtpfs/go-mtpx), with no libmtp and no device quirks. `Configure()` resets and retries when opening a session fails (`go-mtpfs/mtp/mtp.go:661`), and `Close()` resets when closing one fails. Cancelling an upload just stops sending, with no cancel request, so the device waits for the rest of the file. `Open()` ignores a failed interface claim, so a busy device gives confusing errors. It refuses to run with more than one MTP device connected. Its "Legacy" mode is a separate x86_64-only libmtp tool.
-- **Patchcord:** no reset on close for any Android device. The reset-and-retry on a failed open is skipped only for `NO_USB_RESET` devices like the CT10, because it's what un-wedges a Redmi A5. Upload and download cancel are fixed, and Patchcord takes the device back from `ptpcamerad`, which none of the three do.
 - **Same engine elsewhere:** GNOME's and KDE's file managers and Calibre use libmtp with its default settings, so they reset older players too (as the site's Older Android card says).
 
 ## Architecture
