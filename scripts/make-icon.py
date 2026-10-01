@@ -41,11 +41,14 @@ hl = Image.new("RGBA", (S, S), (0, 0, 0, 0))   # thin top highlight on the rim
 ImageDraw.Draw(hl).rounded_rectangle((x0, y0, x1, y1), s(100), outline=(255, 255, 255, 40), width=round(s(2)))
 img.alpha_composite(Image.composite(hl, Image.new("RGBA", (S, S)), mask))
 
-# cable: top run right into an arrowhead, loop back along the bottom into the plug
+# cable: top run right into an arrowhead, loop back along the bottom into the plug.
+# Drawn 1.15x about its centre (and centred vertically) so it fills the squircle like system icons do.
+K = 1.15
+def g(x, y): return p(260 + (x - 260) * K, 246 + (y - 236) * K)
 d = ImageDraw.Draw(img)
-w = round(s(30))
+w = round(s(30 * K))
 def stroke(points):                      # stamp round dots along the path: smooth joins and round caps
-    pts = [p(*q) for q in points]
+    pts = [g(*q) for q in points]
     for (ax, ay), (bx, by) in zip(pts, pts[1:]):
         n = max(1, int(((bx - ax) ** 2 + (by - ay) ** 2) ** .5 / 4))
         for i in range(n + 1):
@@ -57,16 +60,16 @@ def cubic(a, b, c, e, n=48):
 stroke([(150, 206), (352, 206)])
 stroke([(316, 166), (360, 206), (316, 246)])
 stroke(cubic((150, 206), (96, 206), (96, 306), (150, 306)) + [(330, 306)])
-d.rounded_rectangle((*p(326, 280), *p(404, 332)), s(26), fill=BONE)
-d.rounded_rectangle((*p(404, 294), *p(426, 318)), s(8), fill=TIP)
+d.rounded_rectangle((*g(326, 280), *g(404, 332)), s(26 * K), fill=BONE)
+d.rounded_rectangle((*g(404, 294), *g(426, 318)), s(8 * K), fill=TIP)
 
 # amber LED with a soft glow
 glow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-cx, cy = p(392, 120)
+cx, cy = p(400, 112)
 ImageDraw.Draw(glow).ellipse((cx - s(30), cy - s(30), cx + s(30), cy + s(30)), (242, 163, 58, 150))
 img.alpha_composite(glow.filter(ImageFilter.GaussianBlur(s(14))))
 d.ellipse((cx - s(15), cy - s(15), cx + s(15), cy + s(15)), AMBER)
-hx, hy = p(388, 116)
+hx, hy = p(396, 108)
 d.ellipse((hx - s(5), hy - s(5), hx + s(5), hy + s(5)), HOT)
 
 # macOS asset catalogs ignore a lone 1024 image; emit the classic 16…512 @1x/@2x set
