@@ -17,6 +17,7 @@ final class DeviceManager: ObservableObject {
         let name: String
         let storages: [Storage]
         let error: String?  // set when the device was detected but couldn't be opened
+        var connecting = false  // detected, session still opening (a stuck device takes ~65 s to fail)
     }
 
     struct Entry: Identifiable {
@@ -84,7 +85,7 @@ final class DeviceManager: ObservableObject {
         let work = DispatchWorkItem { [weak self] in
             self?.mtp.async {
                 guard let self else { return }
-                let found = self.rescan()
+                let found = self.rescan { detected in DispatchQueue.main.async { self.showConnecting(detected) } }
                 DispatchQueue.main.async { self.publish(found) }
             }
         }
@@ -93,7 +94,7 @@ final class DeviceManager: ObservableObject {
     }
 
     /// Synchronous scan for `--probe`.
-    func scanNow() -> [Device] { mtp.sync { rescan() } }
+    func scanNow() -> [Device] { mtp.sync { rescan { _ in } } }
 
     /// Lists one folder. Blocks on the mtp queue, so call it off the main thread.
     func list(device: String, storage: UInt32, folder: UInt32) throws -> [Entry] {
@@ -135,9 +136,19 @@ final class DeviceManager: ObservableObject {
         }
     }
 
+    /// Shows devices that are still opening, so the window doesn't say "No device connected" meanwhile.
+    private func showConnecting(_ detected: [(id: String, name: String)]) {
+        devices = detected.map { d in
+            devices.first { $0.id == d.id && !$0.connecting && $0.error == nil }
+                ?? Device(id: d.id, name: d.name, storages: [], error: nil, connecting: true)
+        }
+        if active == nil { activeID = devices.first?.id }
+    }
+
     private func publish(_ found: [Device]) {
-        let added = found.filter { d in !devices.contains { $0.id == d.id } }.map(\.name)
-        let removed = devices.filter { d in !found.contains { $0.id == d.id } }.map(\.name)
+        let shown = devices.filter { !$0.connecting }  // placeholders were never announced
+        let added = found.filter { d in !shown.contains { $0.id == d.id } }.map(\.name)
+        let removed = shown.filter { d in !found.contains { $0.id == d.id } }.map(\.name)
         if scannedOnce, !added.isEmpty || !removed.isEmpty {
             let list = { (names: [String]) in ListFormatter.localizedString(byJoining: names) }
             let text = [added.isEmpty ? nil : "\(list(added)) connected",
@@ -158,7 +169,8 @@ final class DeviceManager: ObservableObject {
 
     // MARK: - mtp queue
 
-    private func rescan() -> [Device] {
+    /// `detected` is called before opening any new device, with everything found on the bus.
+    private func rescan(detected: ([(id: String, name: String)]) -> Void) -> [Device] {
         dispatchPrecondition(condition: .onQueue(mtp))
         var raw: UnsafeMutablePointer<LIBMTP_raw_device_t>?
         var n: Int32 = 0
@@ -171,6 +183,9 @@ final class DeviceManager: ObservableObject {
         for (id, handle) in handles where !ids.contains(id) {  // unplugged
             LIBMTP_Release_Device(handle)
             handles[id] = nil
+        }
+        if ids.contains(where: { handles[$0] == nil }) {
+            detected(zip(ids, raws).map { ($0, Self.name(of: $1)) })
         }
 
         return zip(ids, raws).map { id, r in

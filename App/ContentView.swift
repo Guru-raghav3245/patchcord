@@ -11,7 +11,9 @@ struct ContentView: View {
             if manager.devices.isEmpty {
                 NoDeviceView()
             } else if let device = manager.active {
-                if let error = device.error {
+                if device.connecting {
+                    ConnectingView(device: device)
+                } else if let error = device.error {
                     DeviceErrorView(device: device, error: error)
                 } else {
                     BrowserView(device: device).id(device.id)  // fresh browser state per device
@@ -131,6 +133,19 @@ private struct NoDeviceView: View {
         .padding(.horizontal, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .background(BrushedMetal().ignoresSafeArea())
+    }
+}
+
+private struct ConnectingView: View {
+    let device: DeviceManager.Device
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            DeviceHeader(name: device.name, status: "Connecting", led: Theme.muted) { ProgressView().controlSize(.small) }
+            Text("Opening the device. A device that has stopped responding takes about a minute to give up.")
+                .font(Theme.sans(16)).foregroundColor(Theme.muted).frame(maxWidth: 480, alignment: .leading)
+                .padding(24)
+            Spacer()
+        }
     }
 }
 
