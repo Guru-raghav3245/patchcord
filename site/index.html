@@ -77,40 +77,36 @@
     <p class="intro">When most Mac apps finish with a device, they briefly restart its USB connection. Phones from the last few years reconnect on their own in half a second. Music players running Android 7 or earlier don't: they still look connected, but stop responding until you unplug the cable and plug it back in. Patchcord never restarts the connection.</p>
     <table class="cmp">
       <thead>
-        <tr><td></td><th scope="col">Android File Transfer</th><th scope="col">MacDroid</th><th scope="col">OpenMTP</th><th scope="col" class="us">Patchcord</th></tr>
+        <tr><td></td><th scope="col">Android File Transfer</th><th scope="col">MacDroid</th><th scope="col" class="us">Patchcord</th></tr>
       </thead>
       <tbody>
         <tr>
           <th scope="row" class="label">Older player, after you quit the app</th>
           <td data-app="Android File Transfer">Stops responding until you unplug it and plug it back in</td>
           <td data-app="MacDroid">Stops responding until you unplug it and plug it back in</td>
-          <td data-app="OpenMTP">Usually fine, but if connecting or disconnecting goes wrong, it stops responding until you replug it</td>
           <td data-app="Patchcord" class="us"><span class="led" aria-hidden="true"></span>Stays ready for the next time</td>
         </tr>
         <tr>
           <th scope="row" class="label">If you cancel a copy</th>
           <td data-app="Android File Transfer">Your next action on the player waits about a minute</td>
           <td data-app="MacDroid">Your next action on the player waits about a minute</td>
-          <td data-app="OpenMTP">The player keeps waiting for the rest of the file until you replug it</td>
           <td data-app="Patchcord" class="us"><span class="led" aria-hidden="true"></span>Stops in about 3 seconds and removes the half-copied files</td>
         </tr>
         <tr>
           <th scope="row" class="label">Macs with Apple chips (M1 and later)</th>
           <td data-app="Android File Transfer">Made for older Intel Macs. Apple is removing what lets it run on newer ones, so it's expected to stop working in macOS 28</td>
           <td data-app="MacDroid"><span class="led" aria-hidden="true"></span>Works</td>
-          <td data-app="OpenMTP"><span class="led" aria-hidden="true"></span>Works</td>
           <td data-app="Patchcord" class="us"><span class="led" aria-hidden="true"></span>Made for them</td>
         </tr>
         <tr>
           <th scope="row" class="label">Price</th>
           <td data-app="Android File Transfer">Free, but Google stopped updating it in 2024</td>
           <td data-app="MacDroid">Copying music onto the player needs the paid version</td>
-          <td data-app="OpenMTP">Free</td>
           <td data-app="Patchcord" class="us">Free</td>
         </tr>
       </tbody>
     </table>
-    <p class="note">We found these by studying how each app works inside (Android File Transfer 1.0.12, MacDroid 2.10, OpenMTP 3.3). Patchcord's times were measured on a real music player on Android 5 and a phone on Android 15.</p>
+    <p class="note">We found these by studying how each app works inside (Android File Transfer 1.0.12, MacDroid 2.10). Patchcord's times were measured on a real music player on Android 5 and a phone on Android 15.</p>
     <div class="fix">
       <h3 class="label">How Patchcord fixes it</h3>
       <ol class="steps">
