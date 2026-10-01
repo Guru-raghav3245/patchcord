@@ -76,7 +76,10 @@ final class DeviceManager: ObservableObject {
         }
         #endif
         NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification,
-                                               object: nil, queue: nil) { [weak self] _ in self?.closeAll() }
+                                               object: nil, queue: nil) { [weak self] _ in
+            self?.cancelTransfer()  // a running transfer would otherwise hold the mtp queue until it finishes
+            self?.closeAll()
+        }
     }
 
     /// Debounced: a single plug event fires several USB notifications, and the device needs a moment to settle.
@@ -129,11 +132,16 @@ final class DeviceManager: ObservableObject {
         return entries
     }
 
+    /// Waits at most 3 s: the mtp queue can be stuck behind an open of a wedged device (~65 s) or a
+    /// transfer, and quitting must not hang. Exiting releases the USB interface anyway.
     func closeAll() {
-        mtp.sync {
+        let done = DispatchSemaphore(value: 0)
+        mtp.async { [self] in
             handles.values.forEach { LIBMTP_Release_Device($0) }
             handles.removeAll()
+            done.signal()
         }
+        _ = done.wait(timeout: .now() + 3)
     }
 
     /// Shows devices that are still opening, so the window doesn't say "No device connected" meanwhile.
