@@ -74,6 +74,10 @@ code {
   border-radius: 8px; transition: background .15s ease-out, color .15s ease-out;
 }
 .cta:hover { background: var(--amber); color: #16171A; }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+/* secondary: outline, so the download stays the one primary CTA (DESIGN.md) */
+.cta.ghost { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.cta.ghost:hover { background: var(--panel); color: var(--text); }
 .req { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 18px; }
 
 /* hero app window: HTML/CSS drawing of the app (always its dark theme). Real size; runs off the right edge. */

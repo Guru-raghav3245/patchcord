@@ -15,7 +15,7 @@
 <header class="wrap site-nav">
   <img src="icon.png" alt="">
   <a class="name" href="/">Patchcord</a>
-  <nav aria-label="Sections"><a href="#install">Install</a><a href="#compare">Compare</a><a href="#specs">Specs</a><a href="#source">Source</a></nav>
+  <nav aria-label="Sections"><a href="#install">Install</a><a href="#compare">Compare</a><a href="#source">Source</a></nav>
 </header>
 
 <main>
@@ -25,7 +25,10 @@
         <div class="status label"><span class="led" aria-hidden="true"></span>Connected · USB</div>
         <h1 id="headline" class="serif">Plug it in.<br><em>Your music moves.</em></h1>
         <p>A small, native Mac app for copying files to and from your music player or Android phone over USB. Free. No accounts, no network, no fuss.</p>
-        <a class="cta" href="downloads/Patchcord-1.0.6.dmg" download><span class="led" aria-hidden="true"></span>Download for Mac</a>
+        <div class="ctas">
+          <a class="cta" href="downloads/Patchcord-1.0.6.dmg" download><span class="led" aria-hidden="true"></span>Download for Mac</a>
+          <a class="cta ghost" href="#install">How to install</a>
+        </div>
         <div class="req label"><span>Version 1.0.6</span><span>1.4 MB</span><span>Apple Silicon</span><span>macOS 12 or later</span></div>
       </div>
       <!-- The app window, drawn in HTML/CSS (DESIGN.md): stays sharp, matches the page, shows the transfer bars. -->
@@ -118,16 +121,6 @@
     </div>
   </section>
 
-  <section class="wrap sheet" id="specs" tabindex="-1" aria-labelledby="specs-h">
-    <h2 id="specs-h" class="serif">Specs</h2>
-    <ul class="rows">
-      <li><div class="label">Connection</div><div class="v">USB, detected the moment you plug in<small>Android phones and MTP music players.</small></div></li>
-      <li><div class="label">Transfers</div><div class="v">Drag in, drag out, any size<small>Hi-res audio and whole album folders, with progress and cancel for every transfer.</small></div></li>
-      <li><div class="label">On the device</div><div class="v">New folder, rename, delete<small>Internal storage and SD cards.</small></div></li>
-      <li><div class="label">Privacy</div><div class="v">No network access. No telemetry. No account.<small>It only ever talks to the USB port.</small></div></li>
-    </ul>
-  </section>
-
   <section class="wrap sheet" id="install" tabindex="-1" aria-labelledby="install-h">
     <h2 id="install-h" class="serif">Install</h2>
     <ol class="rows">
@@ -152,7 +145,7 @@
 <script>
   // Nav links glide to their section: ease-in-out, ~0.9–1.5 s depending on distance, so the page visibly travels.
   // Instant under "Reduce motion"; scrolling by hand mid-glide hands control back.
-  document.querySelectorAll('.site-nav nav a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+  document.querySelectorAll('.site-nav nav a[href^="#"], .ctas a[href^="#"]').forEach(a => a.addEventListener('click', e => {
     const target = document.querySelector(a.getAttribute('href'));
     if (!target || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     e.preventDefault();
