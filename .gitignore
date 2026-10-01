@@ -5,3 +5,4 @@ Patchcord.xcodeproj/
 .DS_Store
 .vercel/
 .gstack/
+conversations/
