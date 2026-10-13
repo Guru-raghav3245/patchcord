@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Patchcord · Mac file transfer for music players and Android</title>
-<meta name="description" content="Free native macOS app for copying files to and from music players and Android devices over USB.">
+<title>Patchcord · Mac file transfer for older Android devices</title>
+<meta name="description" content="Free native macOS app for transferring files over USB to older Android phones and DAPs (Android 7.1 and earlier) that other Mac tools leave stuck.">
 <meta name="theme-color" content="#0E0F11" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F4F2ED" media="(prefers-color-scheme: light)">
 <link rel="icon" href="favicon.png">
@@ -23,8 +23,8 @@
     <section class="wrap hero" aria-labelledby="headline">
       <div>
         <div class="status label"><span class="led" aria-hidden="true"></span>Connected · USB</div>
-        <h1 id="headline" class="serif">Plug it in.<br><em>Your music moves.</em></h1>
-        <p>A small, native Mac app for copying files to and from your music player or Android phone over USB. Free. No accounts, no network, no fuss.</p>
+        <h1 id="headline" class="serif">Older Androids,<br><em>working on your Mac.</em></h1>
+        <p>The Mac file transfer app that keeps older Android phones and DAPs connected, session after session. Native for Apple Silicon. Free. No accounts, no network needed.</p>
         <div class="ctas">
           <a class="cta" href="downloads/Patchcord-1.0.8.dmg" download><span class="led" aria-hidden="true"></span>Download for Mac</a>
           <a class="cta ghost" href="#install">How to install</a>
@@ -32,12 +32,12 @@
         <div class="req label"><span>Version 1.0.8</span><span>1.4 MB</span><span>Apple Silicon</span><span>macOS 12 or later</span></div>
       </div>
       <!-- The app window, drawn in HTML/CSS (DESIGN.md): stays sharp, matches the page, shows the transfer bars. -->
-      <figure class="shot" role="img" aria-label="The Patchcord window: a music player connected over USB, a folder of hi-res FLAC files with one selected, and an upload in progress with bars for the current file and the total.">
+      <figure class="shot" role="img" aria-label="The Patchcord window: a DAP connected over USB, a folder of FLAC, MP3 and WAV files with one selected, and an upload in progress with bars for the current file and the total.">
         <div class="appwin" aria-hidden="true">
           <div class="aw-head">
             <div class="aw-lights"><i></i><i></i><i></i></div>
             <div class="aw-status"><span class="led"></span>Connected · USB</div>
-            <div class="aw-title"><span class="aw-device">Music Player <svg viewBox="0 0 16 16"><path d="M4 6l4 4 4-4"/></svg></span><span class="aw-free">9.55 GB free of 14.17 GB</span></div>
+            <div class="aw-title"><span class="aw-device">DAP <svg viewBox="0 0 16 16"><path d="M4 6l4 4 4-4"/></svg></span><span class="aw-free">9.55 GB free of 14.17 GB</span></div>
           </div>
           <div class="aw-body">
             <div class="aw-tools">
@@ -51,17 +51,17 @@
             <div class="aw-table">
               <div class="aw-row aw-th"><span>Name <em>⌃</em></span><span>Size</span><span>Kind</span><span>Date Modified</span></div>
               <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 01.flac</span><span class="aw-mono">41.7 MB</span><span>FLAC audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
-              <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 02.flac</span><span class="aw-mono">35.9 MB</span><span>FLAC audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
+              <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 02.mp3</span><span class="aw-mono">8.4 MB</span><span>MP3 audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
               <div class="aw-row sel"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 03.flac</span><span class="aw-mono">44.1 MB</span><span>FLAC audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
-              <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 04.flac</span><span class="aw-mono">39.4 MB</span><span>FLAC audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
-              <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 05.flac</span><span class="aw-mono">33.8 MB</span><span>FLAC audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
+              <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 04.wav</span><span class="aw-mono">52.3 MB</span><span>WAVE audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
+              <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 05.mp3</span><span class="aw-mono">9.7 MB</span><span>MP3 audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
               <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 06.flac</span><span class="aw-mono">46.0 MB</span><span>FLAC audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
-              <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 07.flac</span><span class="aw-mono">38.2 MB</span><span>FLAC audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
+              <div class="aw-row"><span class="aw-name"><svg viewBox="0 0 16 16"><path d="M6 12.5V3.2l7-1.4v8.7"/><circle cx="4.3" cy="12.5" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>Track 07.wav</span><span class="aw-mono">47.6 MB</span><span>WAVE audio</span><span class="aw-mono">27 Sep 2026 at 9:14 PM</span></div>
             </div>
             <div class="aw-transfer">
               <span class="led"></span>
               <div class="aw-bars">
-                <div class="aw-line"><b>Uploading 4 of 12</b><span>Track 04.flac</span><i>62%</i></div>
+                <div class="aw-line"><b>Uploading 4 of 12</b><span>Track 04.wav</span><i>62%</i></div>
                 <div class="aw-bar"><span style="width:62%"></span></div>
                 <div class="aw-line"><b>Total</b><span class="aw-mono">148.2 MB of 486 MB</span><i>30%</i></div>
                 <div class="aw-bar aw-total"><span style="width:30%"></span></div>
@@ -77,7 +77,7 @@
   <section class="wrap sheet" id="compare" tabindex="-1" aria-labelledby="compare-h">
     <div class="label">Compared</div>
     <h2 id="compare-h" class="serif">Other Mac apps can leave your player stuck.</h2>
-    <p class="intro">When most Mac apps finish with a device, they briefly restart its USB connection. Phones from the last few years reconnect on their own in half a second. Music players running Android 7 or earlier don't: they still look connected, but stop responding until you unplug the cable and plug it back in. Patchcord never restarts the connection.</p>
+    <p class="intro">When most Mac apps finish with a device, they briefly restart its USB connection. Phones from the last few years reconnect on their own in half a second. DAPs running Android 7 or earlier don't: they still look connected, but stop responding until you unplug the cable and plug it back in. Patchcord never restarts the connection.</p>
     <table class="cmp">
       <thead>
         <tr><td></td><th scope="col">Android File Transfer</th><th scope="col">MacDroid</th><th scope="col" class="us">Patchcord</th></tr>
@@ -109,14 +109,14 @@
         </tr>
       </tbody>
     </table>
-    <p class="note">We found these by studying how each app works inside (Android File Transfer 1.0.12, MacDroid 2.10), not by running them on the same player. Patchcord's times were measured on a real music player on Android 5 and a phone on Android 15.</p>
+    <p class="note">We found these by studying how each app works inside (Android File Transfer 1.0.12, MacDroid 2.10), not by running them on the same DAP. Patchcord's times were measured on a real DAP on Android 5 and a phone on Android 15.</p>
     <div class="fix">
       <h3 class="label">How Patchcord fixes it</h3>
       <ol class="steps">
         <li><b>No reset on close.</b> Patchcord ships a patched libmtp that never resets an Android device when a session ends.</li>
         <li><b>Sessions stay open.</b> Each device keeps a single session from plug-in until you unplug it or quit, so there's nothing to close in between.</li>
         <li><b>No reset on failure, for players known to get stuck.</b> When a session fails to open, libmtp resets the device and tries again. That reset rescues newer phones, so Patchcord keeps it for them and skips it only for players known to get stuck.</li>
-        <li><b>Tested on real hardware.</b> Measured on an Android 5 music player and an Android 15 phone. <a href="#source">The patch</a> is in the libmtp source download.</li>
+        <li><b>Tested on real hardware.</b> Measured on an Android 5 DAP and an Android 15 phone. <a href="#source">The patch</a> is in the libmtp source download.</li>
       </ol>
     </div>
   </section>

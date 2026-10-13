@@ -48,6 +48,7 @@ First release: native macOS MTP file transfer for Apple Silicon, built on bundle
 - **Fixed:** libmtp patch for DAPs: no reset on close, upload-cancel stall, rename leak.
 
 ## Website only (no app release)
+- 2026-10-13 **Added:** Changelog section with colour-coded classifiers. **Changed:** hero headline and copy now lead with older Androids ("Older Androids, working on your Mac."), "music player" became "DAP" throughout, and the hero app window shows FLAC, MP3 and WAV files.
 - 2026-10-13 **Added:** Privacy and Terms pages, footer with contact and source links. **Changed:** removed the Verify & source section.
 - 2026-10-01 **Changed:** Compared section replaced the Older Android card (OpenMTP later dropped from the table); removed Specs; added a "How to install" button. **Cosmetic:** graphite scroll bar.
 - 2026-09-29 **Added:** explanation of the Android ≤7.1 USB-reset problem and the fix.
