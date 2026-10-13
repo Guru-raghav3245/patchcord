@@ -15,7 +15,7 @@
 <header class="wrap site-nav">
   <img src="icon.png" alt="">
   <a class="name" href="/">Patchcord</a>
-  <nav aria-label="Sections"><a href="#install">Install</a><a href="#compare">Compare</a><a href="#source">Source</a></nav>
+  <nav aria-label="Sections"><a href="#install">Install</a><a href="#compare">Compare</a><a href="#changelog">Changelog</a><a href="#source">Source</a></nav>
 </header>
 
 <main>
@@ -130,6 +130,21 @@
       <li><div class="label">Step 04</div><div class="v">Open Patchcord again and confirm. From then on it opens normally.</div></li>
     </ol>
     <p class="note">The warning appears because the app isn't signed with a paid Apple Developer ID. Quit Android File Transfer or MacDroid first; they lock the device while running.</p>
+  </section>
+
+  <section class="wrap sheet" id="changelog" tabindex="-1" aria-labelledby="changelog-h">
+    <h2 id="changelog-h" class="serif">Changelog</h2>
+    <ol class="rows">
+      <li><div class="label">1.0.8 · Oct 1</div><div class="v"><b class="fixed">Fixed</b> Quit no longer hangs; it cancels a running transfer and waits at most 3 s.</div></li>
+      <li><div class="label">1.0.7 · Oct 1</div><div class="v"><b class="fixed">Fixed</b> A device that's still opening shows as “Connecting”, not “No device connected”.</div></li>
+      <li><div class="label">1.0.6 · Oct 1</div><div class="v"><b class="cosmetic">Cosmetic</b> App icon cable drawn larger so it fills the icon like system icons.</div></li>
+      <li><div class="label">1.0.5 · Sep 29</div><div class="v"><span class="cl"><b class="fixed">Fixed</b> Cancelling a transfer no longer wedges some phones.</span><span class="cl"><b class="improved">Improved</b> Folders list far faster.</span><span class="cl"><b class="added">Added</b> Connect/disconnect notice.</span></div></li>
+      <li><div class="label">1.0.4 · Sep 28</div><div class="v"><b class="internal">Internal</b> Project and bundle id renamed to Patchcord.</div></li>
+      <li><div class="label">1.0.3 · Sep 28</div><div class="v"><span class="cl"><b class="changed">Changed</b> The app is now called Patchcord.</span><span class="cl"><b class="cosmetic">Cosmetic</b> Darker light-mode links.</span></div></li>
+      <li><div class="label">1.0.2 · Sep 27</div><div class="v"><span class="cl"><b class="added">Added</b> Two progress bars and a cancel button.</span><span class="cl"><b class="changed">Changed</b> Cancel removes everything the batch created.</span><span class="cl"><b class="fixed">Fixed</b> Row selection; phones no longer drop out of File transfer on quit.</span><span class="cl"><b class="cosmetic">Cosmetic</b> New look and icon.</span></div></li>
+      <li><div class="label">1.0.1 · Sep 27</div><div class="v"><span class="cl"><b class="added">Added</b> Opens phones held by macOS's camera service.</span><span class="cl"><b class="improved">Improved</b> Clearer busy-device messages.</span><span class="cl"><b class="fixed">Fixed</b> Device released after a failed open.</span></div></li>
+      <li><div class="label">1.0 · Sep 27</div><div class="v">First release: browse, upload, download, folders, rename, delete, drag and drop.</div></li>
+    </ol>
   </section>
 
 </main>
