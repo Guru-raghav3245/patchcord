@@ -109,7 +109,7 @@
         </tr>
       </tbody>
     </table>
-    <p class="note">We found these by studying how each app works inside (Android File Transfer 1.0.12, MacDroid 2.10). Patchcord's times were measured on a real music player on Android 5 and a phone on Android 15.</p>
+    <p class="note">We found these by studying how each app works inside (Android File Transfer 1.0.12, MacDroid 2.10), not by running them on the same player. Patchcord's times were measured on a real music player on Android 5 and a phone on Android 15.</p>
     <div class="fix">
       <h3 class="label">How Patchcord fixes it</h3>
       <ol class="steps">
@@ -132,14 +132,6 @@
     <p class="note">The warning appears because the app isn't signed with a paid Apple Developer ID. Quit Android File Transfer or MacDroid first; they lock the device while running.</p>
   </section>
 
-  <section class="wrap sheet" id="source" tabindex="-1" aria-labelledby="source-h">
-    <h2 id="source-h" class="serif">Verify &amp; source</h2>
-    <ul class="rows">
-      <li><div class="label">Checksums</div><div class="v"><a href="downloads/SHA256SUMS.txt">SHA256SUMS.txt</a><small>To check your download, run <code>shasum -a 256 ~/Downloads/Patchcord-1.0.8.dmg</code> in Terminal.</small></div></li>
-      <li><div class="label">libusb 1.0.30</div><div class="v"><a href="downloads/libusb-1.0.30.tar.bz2">libusb-1.0.30.tar.bz2</a><small>Source code. LGPL 2.1, unmodified.</small></div></li>
-      <li><div class="label">libmtp 1.1.23</div><div class="v"><a href="downloads/libmtp-1.1.23-patchcord.tar.gz">libmtp-1.1.23-patchcord.tar.gz</a><small>Source code. LGPL 2.1, modified. The changes are described in the included <code>NOTICE.txt</code> and patch.</small></div></li>
-    </ul>
-  </section>
 </main>
 
 <script>
@@ -169,9 +161,9 @@
   }));
 </script>
 
-<footer class="wrap">
+<footer class="wrap" id="source" tabindex="-1">
   <span>© 2026 Guru Raghav</span>
-  <span class="label">Fonts: Instrument, Geist · <a href="fonts/OFL-instrumentsans.txt">OFL</a></span>
+  <span class="label"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="mailto:master.guru.raghav@gmail.com">Contact</a> · <a href="downloads/SHA256SUMS.txt">Checksums</a> · Source (LGPL): <a href="downloads/libmtp-1.1.23-patchcord.tar.gz">libmtp</a>, <a href="downloads/libusb-1.0.30.tar.bz2">libusb</a></span>
 </footer>
 </body>
 </html>

@@ -194,3 +194,10 @@ footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-b
 .lost p { color: var(--muted); font-size: 18px; margin: 0 0 32px; }
 .lost .home { display: inline-block; margin-top: 20px; }
 .sheet:focus { outline: none; }  /* focused by the nav glide for screen readers; no ring needed */
+
+/* privacy / terms */
+.legal { padding-block: 72px 24px; }
+.legal > * { max-width: 46em; }
+.legal h1 { font-size: clamp(40px, 6vw, 56px); line-height: 1.05; margin: 20px 0 32px; }
+.legal h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+.legal p { color: var(--muted); font-size: 17px; margin: 0 0 12px; }
